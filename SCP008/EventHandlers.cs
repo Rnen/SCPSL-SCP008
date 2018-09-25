@@ -8,81 +8,84 @@ namespace SCP008PLUGIN
 {
     class EventHandlers : IEventHandlerRoundStart, IEventHandlerRoundEnd, IEventHandlerWaitingForPlayers, IEventHandlerPlayerHurt, IEventHandlerPlayerDie, IEventHandlerMedkitUse, IEventHandlerUpdate
     {
-		private Plugin plugin;
+        private Plugin plugin;
 
-		public EventHandlers(Plugin plugin)
-		{
-			this.plugin = plugin;
-		}
-
-		#region PlayerSpesific
-
-		public void OnPlayerHurt(PlayerHurtEvent ev)
-		{
-			if (SCP008.isEnabled && ev.Attacker.TeamRole.Role == Role.SCP_049_2 && !SCP008.playersToDamage.Contains(ev.Player.SteamId))
-				SCP008.playersToDamage.Add(ev.Player.SteamId);
-		}
-
-		public void OnPlayerDie(PlayerDeathEvent ev)
-		{
-			if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
-				SCP008.playersToDamage.Remove(ev.Player.SteamId);
-		}
-
-		public void OnMedkitUse(PlayerMedkitUseEvent ev)
-		{
-			if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
-				SCP008.playersToDamage.Remove(ev.Player.SteamId);
-		}
-
-		#endregion
-
-		#region RoundHandlers
-
-		public void OnRoundEnd(RoundEndEvent ev)
-		{
-			SCP008.playersToDamage.Clear();
-		}
-
-		public void OnRoundStart(RoundStartEvent ev)
+        public EventHandlers(Plugin plugin)
         {
-			SCP008.playersToDamage.Clear();
+            this.plugin = plugin;
         }
 
-		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
-		{
-			SCP008.isEnabled = ConfigManager.Manager.Config.GetBoolValue("SCP008_enabled", true);
-		}
+        #region PlayerSpecific
 
-		#endregion
+        public void OnPlayerHurt(PlayerHurtEvent ev)
+        {
+            if (SCP008.isEnabled && ev.Attacker.TeamRole.Role == Role.SCP_049_2 && !SCP008.playersToDamage.Contains(ev.Player.SteamId))
+            {
+                SCP008.playersToDamage.Add(ev.Player.SteamId);
+                ev.Player.Damage(ConfigManager.Manager.Config.GetIntValue("scp008_swing_damage", 1, true), DamageType.RAGDOLLLESS);
+            }
+        }
 
-		int damageAmount = ConfigManager.Manager.Config.GetIntValue("SCP008_damage_amount", 1, true),
-				damageInterval = ConfigManager.Manager.Config.GetIntValue("SCP008_damage_interval", 2, true);
+        public void OnPlayerDie(PlayerDeathEvent ev)
+        {
+            if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
+                SCP008.playersToDamage.Remove(ev.Player.SteamId);
+        }
 
-		DateTime updateTimer = DateTime.Now;
+        public void OnMedkitUse(PlayerMedkitUseEvent ev)
+        {
+            if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
+                SCP008.playersToDamage.Remove(ev.Player.SteamId);
+        }
 
-		public void OnUpdate(UpdateEvent ev)
-		{
-			if (SCP008.isEnabled && updateTimer < DateTime.Now)
-			{
-				updateTimer.AddSeconds(damageInterval);
-				plugin.pluginManager.Server.GetPlayers().ForEach(p =>
-				{
-					if (SCP008.playersToDamage.Contains(p.SteamId))
-					{
-						if (damageAmount < p.GetHealth())
-							p.Damage(damageAmount, DamageType.RAGDOLLLESS);
-						else if (damageAmount >= p.GetHealth())
-						{
-							SCP008.playersToDamage.Remove(p.SteamId);
-							Vector pos = p.GetPosition();
-							p.ChangeRole(Role.SCP_049_2, true, false);
-							p.Teleport(pos);
-						}
-					}
-				});
-			}
-		}
+        #endregion
 
-	}
+        #region RoundHandlers
+
+        public void OnRoundEnd(RoundEndEvent ev)
+        {
+            SCP008.playersToDamage.Clear();
+        }
+
+        public void OnRoundStart(RoundStartEvent ev)
+        {
+            SCP008.playersToDamage.Clear();
+        }
+
+        public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
+        {
+            SCP008.isEnabled = ConfigManager.Manager.Config.GetBoolValue("SCP008_enabled", true);
+        }
+
+        #endregion
+
+        int damageAmount = ConfigManager.Manager.Config.GetIntValue("SCP008_damage_amount", 1, true),
+                damageInterval = ConfigManager.Manager.Config.GetIntValue("SCP008_damage_interval", 2, true);
+
+        DateTime updateTimer = DateTime.Now;
+
+        public void OnUpdate(UpdateEvent ev)
+        {
+            if (SCP008.isEnabled && updateTimer < DateTime.Now)
+            {
+                updateTimer.AddSeconds(damageInterval);
+                plugin.pluginManager.Server.GetPlayers().ForEach(p =>
+                {
+                    if (SCP008.playersToDamage.Contains(p.SteamId))
+                    {
+                        if (damageAmount < p.GetHealth())
+                            p.Damage(damageAmount, DamageType.RAGDOLLLESS);
+                        else if (damageAmount >= p.GetHealth())
+                        {
+                            SCP008.playersToDamage.Remove(p.SteamId);
+                            Vector pos = p.GetPosition();
+                            p.ChangeRole(Role.SCP_049_2, true, false);
+                            p.Teleport(pos);
+                        }
+                    }
+                });
+            }
+        }
+
+    }
 }

@@ -4,8 +4,9 @@ using System.Collections.Generic;
 
 namespace SCP008PLUGIN
 {
+    //Needs testing
 	[PluginDetails(
-		author = "Evan",
+		author = "Evan | PoofImaFox",
 		name = "SCP008",
 		description = "Plugin that replicates SCP008 behaviour",
 		id = "rnen.scp.008",
@@ -37,8 +38,9 @@ namespace SCP008PLUGIN
 			this.AddCommands(new string[] { "scp008", "scp08", "scp8" }, new Command.EnableDisableCommand(this));
 			// Register config settings
 			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_enabled", true, Smod2.Config.SettingType.BOOL, true, "test"));
-			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_amount", 1, Smod2.Config.SettingType.NUMERIC, true, "test"));
-			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_interval", 2, Smod2.Config.SettingType.NUMERIC, true, "test"));
-		}
+			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_amount", 1, Smod2.Config.SettingType.NUMERIC, true, "Amount of damager per interval."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_interval", 2, Smod2.Config.SettingType.NUMERIC, true, "The interval at witch to apply damage."));
+            this.AddConfig(new Smod2.Config.ConfigSetting("scp008_swing_damage", 3, Smod2.Config.SettingType.NUMERIC, true, "The damage applied on swing."));
+        }
 	}
 }
