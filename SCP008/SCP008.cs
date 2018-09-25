@@ -1,9 +1,6 @@
 ﻿using Smod2;
 using Smod2.Attributes;
-using Smod2.EventHandlers;
-using Smod2.Events;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SCP008PLUGIN
 {
@@ -29,8 +26,7 @@ namespace SCP008PLUGIN
 
 		public override void OnEnable()
 		{
-			this.Info("Example Plugin has loaded :)");
-			this.Info("Config value: " + this.GetConfigString("test"));
+			this.Info( this.Details.name + " loaded successfully!");
 		}
 
 		public override void Register()
@@ -38,7 +34,7 @@ namespace SCP008PLUGIN
 			// Register Events
 			this.AddEventHandlers(new EventHandlers(this));
 			// Register Commands
-			this.AddCommands(new string[] { "scp008", "scp8" }, new SCP008PLUGIN.Command.EnableDisableCommand(this));
+			this.AddCommands(new string[] { "scp008", "scp08", "scp8" }, new Command.EnableDisableCommand(this));
 			// Register config settings
 			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_enabled", true, Smod2.Config.SettingType.BOOL, true, "test"));
 			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_amount", 1, Smod2.Config.SettingType.NUMERIC, true, "test"));
