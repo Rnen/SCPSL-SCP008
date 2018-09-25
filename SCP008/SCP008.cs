@@ -10,7 +10,7 @@ namespace SCP008PLUGIN
 		name = "SCP008",
 		description = "Plugin that replicates SCP008 behaviour",
 		id = "rnen.scp.008",
-		version = "1.0",
+		version = "1.1",
 		SmodMajor = 3,
 		SmodMinor = 1,
 		SmodRevision = 18
@@ -37,9 +37,9 @@ namespace SCP008PLUGIN
 			// Register Commands
 			this.AddCommands(new string[] { "scp008", "scp08", "scp8" }, new Command.EnableDisableCommand(this));
 			// Register config settings
-			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_enabled", true, Smod2.Config.SettingType.BOOL, true, "test"));
-			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_amount", 1, Smod2.Config.SettingType.NUMERIC, true, "Amount of damager per interval."));
-			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_interval", 2, Smod2.Config.SettingType.NUMERIC, true, "The interval at witch to apply damage."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_enabled", true, Smod2.Config.SettingType.BOOL, true, "Enable/Disable plugin"));
+			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_amount", 1, Smod2.Config.SettingType.NUMERIC, true, "Amount of damage per interval."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_interval", 2, Smod2.Config.SettingType.NUMERIC, true, "The interval at which to apply damage."));
             this.AddConfig(new Smod2.Config.ConfigSetting("scp008_swing_damage", 3, Smod2.Config.SettingType.NUMERIC, true, "The damage applied on swing."));
         }
 	}
