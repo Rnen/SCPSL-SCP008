@@ -1,5 +1,7 @@
 # SCP008
-
+Zombies (SCP-049-2) will infect players with SCP-008.
+They will constantly take damage untill death or they heal themselves with a medkit.
+When the player dies of the SCP-008 effect, they themselves become a Zombie (SCP-049-2)
 
 ## Config Options
 Config Key | Default Value | Description
