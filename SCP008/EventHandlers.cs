@@ -50,10 +50,18 @@ namespace SCP008PLUGIN
 			SCP008.playersToDamage.Clear();
 		}
 
-		public void OnRoundStart(RoundStartEvent ev)
-		{
-			SCP008.playersToDamage.Clear();
-		}
+        public void OnRoundStart(RoundStartEvent ev)
+        {
+            SCP008.playersToDamage.Clear();
+            ev.Server.GetPlayers().ForEach(i =>
+            {
+                string RoomID = ConfigManager.Manager.Config.GetStringValue("scp008_spawn_room", "", true);
+                if (i.TeamRole.Role == Role.SCP_049_2 && RoomID != "")
+                {
+                    plugin.pluginManager.CommandManager.CallCommand(null, "tproom", new string[] { i.PlayerId.ToString(), RoomID });
+                }
+            });
+        }
 
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
@@ -71,8 +79,8 @@ namespace SCP008PLUGIN
 		{
 			if (SCP008.isEnabled && updateTimer < DateTime.Now)
 			{
-				updateTimer.AddSeconds(damageInterval);
-				if (server.GetPlayers().Count > 0)
+                updateTimer = DateTime.Now.AddSeconds(damageInterval);
+                if (server.GetPlayers().Count > 0)
 					server.GetPlayers().ForEach(p =>
 					{
 						if ((p.TeamRole.Team != Team.SCP && p.TeamRole.Team != Team.SPECTATOR) && SCP008.playersToDamage.Contains(p.SteamId))
@@ -84,7 +92,8 @@ namespace SCP008PLUGIN
 								SCP008.playersToDamage.Remove(p.SteamId);
 								Vector pos = p.GetPosition();
 								p.ChangeRole(Role.SCP_049_2, true, false);
-								p.Teleport(pos);
+
+                                p.Teleport(pos);
 							}
 						}
 					});
