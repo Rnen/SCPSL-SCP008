@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace SCP008PLUGIN
 {
-    //Needs testing
 	[PluginDetails(
 		author = "Evan | PoofImaFox",
 		name = "SCP008",
@@ -19,15 +18,16 @@ namespace SCP008PLUGIN
 	{
 		public static List<string> playersToDamage = new List<string>();
 		public static bool isEnabled = true;
-
+		public static int roundCount = 0;
 
 		public override void OnDisable()
 		{
+			this.Info(this.Details.name + " has been disabled.");
 		}
 
 		public override void OnEnable()
 		{
-			this.Info( this.Details.name + " loaded successfully!");
+			this.Info(this.Details.name + " loaded successfully!");
 		}
 
 		public override void Register()
@@ -40,8 +40,8 @@ namespace SCP008PLUGIN
 			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_enabled", true, Smod2.Config.SettingType.BOOL, true, "Enable/Disable plugin"));
 			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_amount", 1, Smod2.Config.SettingType.NUMERIC, true, "Amount of damage per interval."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_damage_interval", 2, Smod2.Config.SettingType.NUMERIC, true, "The interval at which to apply damage."));
-            this.AddConfig(new Smod2.Config.ConfigSetting("scp008_swing_damage", 0, Smod2.Config.SettingType.NUMERIC, true, "The damage applied on swing."));
-            this.AddConfig(new Smod2.Config.ConfigSetting("scp008_spawn_room", "", Smod2.Config.SettingType.STRING, true, "The room ID that scp008 will spawn."));
-        }
+			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_swing_damage", 0, Smod2.Config.SettingType.NUMERIC, true, "The damage applied on swing."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_spawn_room", string.Empty, Smod2.Config.SettingType.STRING, true, "The room ID that scp008 will spawn."));
+		}
 	}
 }
