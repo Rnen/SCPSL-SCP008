@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EnableDisableCommand.cs" />
+    <Compile Include="Commands\EnableDisableCommand.cs" />
     <Compile Include="EventHandlers.cs" />
     <Compile Include="SCP008.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
