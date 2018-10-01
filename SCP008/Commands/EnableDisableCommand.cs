@@ -22,13 +22,11 @@ namespace SCP008PLUGIN.Command
 
 		public string GetUsage()
 		{
-			return "scp008 / scp8";
+			return "SCP008";
 		}
 
-		public string[] OnCall(ICommandSender sender, string[] args)
+		bool isAllowed(ICommandSender sender)
 		{
-			bool allowed = false;
-
 			//Checking if the ICommandSender is a player and setting the player variable if it is
 			Player player = (sender is Player) ? sender as Player : null;
 
@@ -45,17 +43,21 @@ namespace SCP008PLUGIN.Command
 					&& (roleList.Contains(player.GetUserGroup().Name.ToUpper()) || roleList.Contains(player.GetRankName().ToUpper()) ) )
 				{
 					//Config contained rank
-					allowed = true;
+					return true;
 				}
-				else if (roleList == null || roleList.Count == 0)
-					allowed = true; // config was empty
+				else if (roleList == null || roleList.Count == 0 || (roleList.Count == 1 && string.IsNullOrEmpty(roleList.First()) ) )
+					return true; // config was empty
+				else
+					return false; // config was not empty and didnt contain player role
 			}
 			else
-				allowed = true;
+				return true; // if command is run by server window
+		}
 
-			if (allowed)
+		public string[] OnCall(ICommandSender sender, string[] args)
+		{
+			if (isAllowed(sender))
 			{
-
 				if (args.Length >= 1 && bool.TryParse(args[0], out bool value)) // If the command contains a arguement and it can be parsed as a bool
 					SCP008.isEnabled = value;
 				else 

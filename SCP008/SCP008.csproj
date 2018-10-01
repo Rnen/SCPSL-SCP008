@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\InfectCommand.cs" />
+    <Compile Include="Commands\TemplateCommand.cs" />
     <Compile Include="Commands\EnableDisableCommand.cs" />
     <Compile Include="EventHandlers.cs" />
     <Compile Include="SCP008.cs" />

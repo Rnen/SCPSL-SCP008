@@ -3,6 +3,8 @@ using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace SCP008PLUGIN
 {
@@ -12,15 +14,14 @@ namespace SCP008PLUGIN
 		private Plugin plugin;
 		private Server server;
 
-		int damageAmount, 
-			damageInterval;
+		int damageAmount = 2, 
+			damageInterval = 1;
+		List<int> rolesCanBecomeInfected = new List<int>();
 
 		public EventHandlers(Plugin plugin)
 		{
 			this.plugin = plugin;
 			this.server = plugin.pluginManager.Server;
-			this.damageAmount = plugin.GetConfigInt(SCP008.damageAmountConfigKey);
-			this.damageInterval = plugin.GetConfigInt(SCP008.damageIntervalConfigKey);
 		}
 
 		#region PlayerSpecific
@@ -39,7 +40,10 @@ namespace SCP008PLUGIN
 				&& !SCP008.playersToDamage.Contains(ev.Player.SteamId)
 				&& new Random().Next(1, 100) >= infectChance)
 			{
-				SCP008.playersToDamage.Add(ev.Player.SteamId);
+				if(rolesCanBecomeInfected == null || rolesCanBecomeInfected.Count == 0)
+					SCP008.playersToDamage.Add(ev.Player.SteamId);
+				else if (rolesCanBecomeInfected.Count > 0 &&  rolesCanBecomeInfected.Contains((int)ev.Player.TeamRole.Role))
+					SCP008.playersToDamage.Add(ev.Player.SteamId);
 			}
 
 			//If a zombie kills a person with "zombiekill_infect" set to true, transform
@@ -51,7 +55,7 @@ namespace SCP008PLUGIN
 				if(SCP008.playersToDamage.Contains(ev.Player.SteamId))
 					SCP008.playersToDamage.Remove(ev.Player.SteamId);
 				Vector pos = ev.Player.GetPosition();
-				ev.Player.ChangeRole(Role.SCP_049_2, true, false);
+				ev.Player.ChangeRole(Role.SCP_049_2, spawnTeleport: false);
 				ev.Player.Teleport(pos);
 			}
 		}
@@ -106,6 +110,11 @@ namespace SCP008PLUGIN
 			//Checks enabled config on initial start
 			if (SCP008.roundCount == 0)
 				SCP008.isEnabled = plugin.GetConfigBool(SCP008.enableConfigKey);
+
+			//Reload theese configs on each round restart
+			this.damageAmount = plugin.GetConfigInt(SCP008.damageAmountConfigKey);
+			this.damageInterval = plugin.GetConfigInt(SCP008.damageIntervalConfigKey);
+			this.rolesCanBecomeInfected = plugin.GetConfigIntList(SCP008.rolesCanBeInfected).ToList();
 		}
 
 		#endregion
@@ -135,7 +144,7 @@ namespace SCP008PLUGIN
 								//If the damage kills the human, transform
 								SCP008.playersToDamage.Remove(p.SteamId);
 								Vector pos = p.GetPosition();
-								p.ChangeRole(Role.SCP_049_2, true, false);
+								p.ChangeRole(Role.SCP_049_2, spawnTeleport: false);
 								p.Teleport(pos);
 							}
 						}

@@ -9,7 +9,7 @@ namespace SCP008PLUGIN
 		name = "SCP008",
 		description = "Plugin that replicates SCP008 behaviour",
 		id = "rnen.scp.008",
-		version = "1.1",
+		version = "1.2",
 		SmodMajor = 3,
 		SmodMinor = 1,
 		SmodRevision = 18
@@ -30,7 +30,8 @@ namespace SCP008PLUGIN
 			infectChanceConfigKey = "scp008_infect_chance",
 			cureEnabledConfigKey = "scp008_cure_enabled",
 			cureChanceConfigKey = "scp008_cure_chance",
-			ranksAllowedConfigKey = "scp008_ranklist_commands";
+			ranksAllowedConfigKey = "scp008_ranklist_commands",
+			rolesCanBeInfected = "scp008_roles_caninfect";
 		#endregion
 
 		public override void OnDisable() => this.Info(this.Details.name + " has been disabled.");
@@ -45,11 +46,13 @@ namespace SCP008PLUGIN
 
 			#region CommandRegister
 			this.AddCommands(new string[] { "scp008", "scp08", "scp8" }, new Command.EnableDisableCommand(this));
+			this.AddCommands(new string[] { "infect" }, new Command.InfectCommand(this));
 			#endregion
 
 			#region ConfigRegister
 			this.AddConfig(new Smod2.Config.ConfigSetting(enableConfigKey, true, Smod2.Config.SettingType.BOOL, true, "Enable/Disable plugin"));
-			this.AddConfig(new Smod2.Config.ConfigSetting(ranksAllowedConfigKey, new string[] { }, Smod2.Config.SettingType.LIST, true, "What roles are allowed to run the commands of the plugin"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(ranksAllowedConfigKey, new string[] { }, Smod2.Config.SettingType.LIST, true, "What ranks are allowed to run the commands of the plugin"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(rolesCanBeInfected, new string[] { }, Smod2.Config.SettingType.NUMERIC_LIST, true, "What roles can be infected"));
 
 			this.AddConfig(new Smod2.Config.ConfigSetting(damageAmountConfigKey, 1, Smod2.Config.SettingType.NUMERIC, true, "Amount of damage per interval."));
 			this.AddConfig(new Smod2.Config.ConfigSetting(damageIntervalConfigKey, 2, Smod2.Config.SettingType.NUMERIC, true, "The interval at which to apply damage."));
