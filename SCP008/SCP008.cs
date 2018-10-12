@@ -9,13 +9,15 @@ namespace SCP008PLUGIN
 		name = "SCP008",
 		description = "Plugin that replicates SCP008 behaviour",
 		id = "rnen.scp.008",
-		version = "1.2",
+		version = pluginVersion,
 		SmodMajor = 3,
 		SmodMinor = 1,
-		SmodRevision = 18
+		SmodRevision = 19
 		)]
 	public class SCP008 : Plugin
 	{
+		public const string pluginVersion = "1.2";
+
 		public static List<string> playersToDamage = new List<string>();
 		public static bool isEnabled = true;
 		public static int roundCount = 0;
@@ -41,7 +43,7 @@ namespace SCP008PLUGIN
 		public override void Register()
 		{
 			#region EventRegister
-			this.AddEventHandlers(new EventHandlers(this));
+			this.AddEventHandlers(new EventHandlers(this),Smod2.Events.Priority.Low);
 			#endregion
 
 			#region CommandRegister
@@ -52,7 +54,7 @@ namespace SCP008PLUGIN
 			#region ConfigRegister
 			this.AddConfig(new Smod2.Config.ConfigSetting(enableConfigKey, true, Smod2.Config.SettingType.BOOL, true, "Enable/Disable plugin"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(ranksAllowedConfigKey, new string[] { }, Smod2.Config.SettingType.LIST, true, "What ranks are allowed to run the commands of the plugin"));
-			this.AddConfig(new Smod2.Config.ConfigSetting(rolesCanBeInfected, new string[] { }, Smod2.Config.SettingType.NUMERIC_LIST, true, "What roles can be infected"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(rolesCanBeInfected, new int[] { -1 }, Smod2.Config.SettingType.NUMERIC_LIST, true, "What roles can be infected"));
 
 			this.AddConfig(new Smod2.Config.ConfigSetting(damageAmountConfigKey, 1, Smod2.Config.SettingType.NUMERIC, true, "Amount of damage per interval."));
 			this.AddConfig(new Smod2.Config.ConfigSetting(damageIntervalConfigKey, 2, Smod2.Config.SettingType.NUMERIC, true, "The interval at which to apply damage."));

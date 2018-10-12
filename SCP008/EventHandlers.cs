@@ -38,9 +38,10 @@ namespace SCP008PLUGIN
 			//When a zombie damages a player, adds them to list of infected players to damage
 			if (SCP008.isEnabled && ev.Attacker.TeamRole.Role == Role.SCP_049_2
 				&& !SCP008.playersToDamage.Contains(ev.Player.SteamId)
-				&& new Random().Next(1, 100) >= infectChance)
+				&& infectChance > 0
+				&& new Random().Next(1, 100) <= infectChance)
 			{
-				if(rolesCanBecomeInfected == null || rolesCanBecomeInfected.Count == 0)
+				if(rolesCanBecomeInfected == null || rolesCanBecomeInfected.Count == 0 || rolesCanBecomeInfected.First() == -1)
 					SCP008.playersToDamage.Add(ev.Player.SteamId);
 				else if (rolesCanBecomeInfected.Count > 0 &&  rolesCanBecomeInfected.Contains((int)ev.Player.TeamRole.Role))
 					SCP008.playersToDamage.Add(ev.Player.SteamId);
@@ -69,10 +70,11 @@ namespace SCP008PLUGIN
 
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
 		{
+			int cureChance = plugin.GetConfigInt(SCP008.cureChanceConfigKey);
 			//If its enabled in config and infected list contains player and cure chance is more than, cure.
 			if (plugin.GetConfigBool(SCP008.cureEnabledConfigKey)
 				&& SCP008.playersToDamage.Contains(ev.Player.SteamId) 
-				&& plugin.GetConfigInt(SCP008.cureChanceConfigKey) >= new Random().Next(1,100))
+				&& cureChance > 0 && plugin.GetConfigInt(SCP008.cureChanceConfigKey) >= new Random().Next(1,100))
 				SCP008.playersToDamage.Remove(ev.Player.SteamId);
 		}
 
@@ -138,7 +140,7 @@ namespace SCP008PLUGIN
 						{
 							//If the damage doesnt kill, deal the damage
 							if (damageAmount < p.GetHealth())
-								p.Damage(damageAmount, DamageType.RAGDOLLLESS);
+								p.Damage(damageAmount, DamageType.SCP_049_2);
 							else if (damageAmount >= p.GetHealth())
 							{
 								//If the damage kills the human, transform
