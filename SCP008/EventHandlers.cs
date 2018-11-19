@@ -136,7 +136,7 @@ namespace SCP008PLUGIN
 					server.GetPlayers().ForEach(p =>
 					{
 						//If the victim is human and the player is in the infected list
-						if ((p.TeamRole.Team != Team.SCP && p.TeamRole.Team != Team.SPECTATOR) && SCP008.playersToDamage.Contains(p.SteamId))
+						if ((p.TeamRole.Team != Smod2.API.Team.SCP && p.TeamRole.Team != Smod2.API.Team.SPECTATOR) && SCP008.playersToDamage.Contains(p.SteamId))
 						{
 							//If the damage doesnt kill, deal the damage
 							if (damageAmount < p.GetHealth())

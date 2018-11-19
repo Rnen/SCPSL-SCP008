@@ -12,7 +12,7 @@ namespace SCP008PLUGIN
 		version = pluginVersion,
 		SmodMajor = 3,
 		SmodMinor = 1,
-		SmodRevision = 19
+		SmodRevision = 22
 		)]
 	public class SCP008 : Plugin
 	{

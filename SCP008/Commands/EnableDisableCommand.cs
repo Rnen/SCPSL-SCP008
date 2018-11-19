@@ -9,23 +9,16 @@ namespace SCP008PLUGIN.Command
 {
 	class EnableDisableCommand : ICommandHandler
 	{
-		private SCP008 plugin;
-		public EnableDisableCommand(SCP008 plugin)
-		{
-			this.plugin = plugin;
-		}
+		private readonly SCP008 plugin;
 
-		public string GetCommandDescription()
-		{
-			return "Enables / disables " + plugin.Details.name;
-		}
+		public EnableDisableCommand(SCP008 plugin) => this.plugin = plugin;
 
-		public string GetUsage()
-		{
-			return "SCP008";
-		}
+		public string GetCommandDescription() => "Enables or disables " + plugin.Details.name;
 
-		bool isAllowed(ICommandSender sender)
+		public string GetUsage() => "SCP008";
+
+
+		bool IsAllowed(ICommandSender sender)
 		{
 			//Checking if the ICommandSender is a player and setting the player variable if it is
 			Player player = (sender is Player) ? sender as Player : null;
@@ -56,7 +49,7 @@ namespace SCP008PLUGIN.Command
 
 		public string[] OnCall(ICommandSender sender, string[] args)
 		{
-			if (isAllowed(sender))
+			if (IsAllowed(sender))
 			{
 				if (args.Length >= 1 && bool.TryParse(args[0], out bool value)) // If the command contains a arguement and it can be parsed as a bool
 					SCP008.isEnabled = value;

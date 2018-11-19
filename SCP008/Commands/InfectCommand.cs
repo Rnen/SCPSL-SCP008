@@ -9,19 +9,14 @@ namespace SCP008PLUGIN.Command
 {
 	class InfectCommand : ICommandHandler
 	{
-		private SCP008 plugin;
-		private Server server => plugin.pluginManager.Server;
+		private readonly SCP008 plugin;
+		private Server Server => plugin.pluginManager.Server;
+
 		public InfectCommand(SCP008 plugin) => this.plugin = plugin;
 
-		public string GetCommandDescription()
-		{
-			return "Infects / removes infection";
-		}
+		public string GetCommandDescription() => "Infects / removes infection";
 
-		public string GetUsage()
-		{
-			return "INFECT PLAYER";
-		}
+		public string GetUsage() => "INFECT PLAYER";
 
 		bool isAllowed(ICommandSender sender)
 		{
@@ -69,7 +64,7 @@ namespace SCP008PLUGIN.Command
 					}
 				else if (args.Length > 0)
 				{
-					List<Player> players = server.GetPlayers(args[0]);
+					List<Player> players = Server.GetPlayers(args[0]);
 					Player player;
 					if (players == null || players.Count == 0) return new string[] { "No players on the server called " + args[0] };
 					player = players.OrderBy(pl => pl.Name.Length).First();
