@@ -33,7 +33,8 @@ namespace SCP008PLUGIN
 			cureEnabledConfigKey = "scp008_cure_enabled",
 			cureChanceConfigKey = "scp008_cure_chance",
 			ranksAllowedConfigKey = "scp008_ranklist_commands",
-			rolesCanBeInfected = "scp008_roles_caninfect";
+			rolesCanBeInfected = "scp008_roles_caninfect",
+			canHitTut = "scp008_canhit_tutorial";
 		#endregion
 
 		public override void OnDisable() => this.Info(this.Details.name + " has been disabled.");
@@ -53,6 +54,7 @@ namespace SCP008PLUGIN
 
 			#region ConfigRegister
 			this.AddConfig(new Smod2.Config.ConfigSetting(enableConfigKey, true, Smod2.Config.SettingType.BOOL, true, "Enable/Disable plugin"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(canHitTut, true, Smod2.Config.SettingType.BOOL, true, "If zombies can hit TUTORIAL players or not"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(ranksAllowedConfigKey, new string[] { }, Smod2.Config.SettingType.LIST, true, "What ranks are allowed to run the commands of the plugin"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(rolesCanBeInfected, new int[] { -1 }, Smod2.Config.SettingType.NUMERIC_LIST, true, "What roles can be infected"));
 

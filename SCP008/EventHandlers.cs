@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace SCP008PLUGIN
 {
 	class EventHandlers : IEventHandlerRoundStart, IEventHandlerRoundEnd, IEventHandlerWaitingForPlayers,
-		IEventHandlerPlayerHurt, IEventHandlerPlayerDie, IEventHandlerMedkitUse, IEventHandlerUpdate
+		IEventHandlerPlayerHurt, IEventHandlerPlayerDie, IEventHandlerMedkitUse, IEventHandlerUpdate, IEventHandlerCheckEscape
 	{
 		private Plugin plugin;
 		private Server server;
@@ -32,6 +32,9 @@ namespace SCP008PLUGIN
 
 			int damageAmount = plugin.GetConfigInt(SCP008.swingDamageConfigKey);
 			int infectChance = plugin.GetConfigInt(SCP008.infectChanceConfigKey);
+
+			bool canHitTut = plugin.GetConfigBool(SCP008.canHitTut);
+			if (ev.Player.TeamRole.Team == Smod2.API.Team.TUTORIAL && ev.Attacker.TeamRole.Role == Role.ZOMBIE && !canHitTut) { ev.Damage = 0f; return; }
 
 			//Sets damage to config amount if above 0
 			if (ev.Attacker.TeamRole.Role == Role.SCP_049_2 && damageAmount > 0)
@@ -68,6 +71,8 @@ namespace SCP008PLUGIN
 			//If player dies, removes them from infected list
 			if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
 				SCP008.playersToDamage.Remove(ev.Player.SteamId);
+			if (SCP008.playersToDamage.Count() < 1)
+				plugin.Server.Map.AnnounceScpKill("008", ev.Killer);
 		}
 
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
@@ -135,7 +140,7 @@ namespace SCP008PLUGIN
 
 				//If the server isnt empty, run code on all players
 				if (server.GetPlayers().Count > 0)
-					server.GetPlayers().ForEach(p =>
+					foreach(Player p in server.GetPlayers())
 					{
 						//If the victim is human and the player is in the infected list
 						if ((p.TeamRole.Team != Smod2.API.Team.SCP && p.TeamRole.Team != Smod2.API.Team.SPECTATOR) && SCP008.playersToDamage.Contains(p.SteamId))
@@ -152,9 +157,14 @@ namespace SCP008PLUGIN
 								p.Teleport(pos);
 							}
 						}
-					});
+					}
 			}
 		}
 
+		public void OnCheckEscape(PlayerCheckEscapeEvent ev)
+		{
+			if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
+				SCP008.playersToDamage.Remove(ev.Player.SteamId);
+		}
 	}
 }
