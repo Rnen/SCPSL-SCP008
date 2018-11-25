@@ -101,17 +101,12 @@ namespace SCP008PLUGIN
 		{
 			//Empties infected list
 			SCP008.playersToDamage.Clear();
-
-			/* Untested
+			/* Poof's untested code
 			string RoomID = plugin.GetConfigString("scp008_spawn_room");
-            ev.Server.GetPlayers().ForEach(p =>
-            {
-                if (p.TeamRole.Role == Role.SCP_049_2 && RoomID != string.Empty)
-                {
-                    plugin.pluginManager.CommandManager.CallCommand(server, "tproom", new string[] { p.PlayerId.ToString(), RoomID });
-                }
-            });
-            */
+			if (!string.IsNullOrEmpty(RoomID))
+				foreach(Player p in ev.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2))
+					plugin.pluginManager.CommandManager.CallCommand(server, "tproom", new string[] { p.PlayerId.ToString(), RoomID });
+			*/
 		}
 
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
