@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace SCP008PLUGIN
 {
 	[PluginDetails(
-		author = "Evan | PoofImaFox",
+		author = "Evan",
 		name = "SCP008",
 		description = "Plugin that replicates SCP008 behaviour",
 		id = "rnen.scp.008",
@@ -16,7 +16,7 @@ namespace SCP008PLUGIN
 		)]
 	public class SCP008 : Plugin
 	{
-		public const string pluginVersion = "1.3";
+		public const string pluginVersion = "1.4";
 
 		public static List<string> playersToDamage = new List<string>();
 		public static bool isEnabled = true;
