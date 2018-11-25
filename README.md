@@ -3,6 +3,8 @@
 * They will constantly take damage untill death or they heal themselves with a medkit. 
 * When the player dies of the SCP-008 effect, they themselves become a Zombie (SCP-049-2) 
 
+> How to install: Go to [Releases](https://github.com/Rnen/SCP008/releases) and pick your correct version. Drop it in plugins folder
+
 ## Config Options
 Config Key | Default Value | Description
 --: | :--: | :--
