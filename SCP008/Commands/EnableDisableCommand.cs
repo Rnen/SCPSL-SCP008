@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace SCP008PLUGIN.Command
 {
+	/// <summary>
+	/// Command for enabling/disabling <see cref="SCP008"/>
+	/// </summary>
 	class EnableDisableCommand : ICommandHandler
 	{
 		private readonly SCP008 plugin;

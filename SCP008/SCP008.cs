@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace SCP008PLUGIN
 {
+	/// <summary>
+	/// The <see cref="SCP008"/> <see cref="Plugin"/>!
+	/// </summary>
 	[PluginDetails(
 		author = "Evan",
 		name = "SCP008",
@@ -19,15 +22,18 @@ namespace SCP008PLUGIN
 #if (DEBUG)
 		public const string pluginVersion = "DEBUG";
 #else
+		/// <summary>
+		/// The <see cref="SCP008"/> version
+		/// </summary>
 		public const string pluginVersion = "1.4";
 #endif
-		public static List<string> playersToDamage = new List<string>();
-		public static bool isEnabled = true;
-		public static int roundCount = 0;
-		public static bool canAnnounce = false;
+		internal static List<string> playersToDamage = new List<string>();
+		internal static bool isEnabled = true;
+		internal static int roundCount = 0;
+		internal static bool canAnnounce = false;
 		
 		#region ConfigKeys
-		public static readonly string
+		internal static readonly string
 			enableConfigKey = "scp008_enabled",
 			damageAmountConfigKey = "scp008_damage_amount",
 			damageIntervalConfigKey = "scp008_damage_interval",

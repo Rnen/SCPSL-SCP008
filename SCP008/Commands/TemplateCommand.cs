@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace SCP008PLUGIN.Command
 {
+	/// <summary>
+	/// Command template for the <see cref="SCP008"/> <see cref="Smod2.Plugin"/>
+	/// </summary>
 	class TemplateCommand : ICommandHandler
 	{
 		private SCP008 plugin;

@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace SCP008PLUGIN.Command
 {
+	/// <summary>
+	/// Command for infecting <see cref="Player"/>s
+	/// </summary>
 	class InfectCommand : ICommandHandler
 	{
 		private readonly SCP008 plugin;
