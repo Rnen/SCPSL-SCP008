@@ -28,6 +28,8 @@ namespace SCP008PLUGIN
 
 		public void OnPlayerHurt(PlayerHurtEvent ev)
 		{
+			if (ev.Attacker.PlayerId == ev.Player.PlayerId) return;
+
 			int damageAmount = plugin.GetConfigInt(SCP008.swingDamageConfigKey);
 			int infectChance = plugin.GetConfigInt(SCP008.infectChanceConfigKey);
 
