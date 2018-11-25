@@ -33,7 +33,7 @@ namespace SCP008PLUGIN
 			int damageAmount = plugin.GetConfigInt(SCP008.swingDamageConfigKey);
 			int infectChance = plugin.GetConfigInt(SCP008.infectChanceConfigKey);
 
-			bool canHitTut = plugin.GetConfigBool(SCP008.canHitTut);
+			bool canHitTut = plugin.GetConfigBool(SCP008.canHitTutConfigKey);
 			if (ev.Player.TeamRole.Team == Smod2.API.Team.TUTORIAL && ev.Attacker.TeamRole.Role == Role.ZOMBIE && !canHitTut) { ev.Damage = 0f; return; }
 
 			//Sets damage to config amount if above 0
@@ -46,9 +46,9 @@ namespace SCP008PLUGIN
 				&& infectChance > 0
 				&& new Random().Next(1, 100) <= infectChance)
 			{
-				if(rolesCanBecomeInfected == null || rolesCanBecomeInfected.Count == 0 || rolesCanBecomeInfected.First() == -1)
-					SCP008.playersToDamage.Add(ev.Player.SteamId);
-				else if (rolesCanBecomeInfected.Count > 0 &&  rolesCanBecomeInfected.Contains((int)ev.Player.TeamRole.Role))
+				if( (rolesCanBecomeInfected == null || rolesCanBecomeInfected.Count == 0 || rolesCanBecomeInfected.FirstOrDefault() == -1) 
+					|| 
+					(rolesCanBecomeInfected.Count > 0 && rolesCanBecomeInfected.Contains((int)ev.Player.TeamRole.Role)))
 					SCP008.playersToDamage.Add(ev.Player.SteamId);
 			}
 
@@ -63,16 +63,21 @@ namespace SCP008PLUGIN
 				Vector pos = ev.Player.GetPosition();
 				ev.Player.ChangeRole(Role.SCP_049_2, spawnTeleport: false);
 				ev.Player.Teleport(pos);
+				SCP008.canAnnounce = true;
 			}
 		}
 
 		public void OnPlayerDie(PlayerDeathEvent ev)
 		{
+			//If settings require 049 to die, counts 049, if not returns false
+			bool scp049alive = (plugin.GetConfigBool(SCP008.announceRequire049ConfigKey)) ? server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049).Count() > 0 : false;
 			//If player dies, removes them from infected list
 			if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
 				SCP008.playersToDamage.Remove(ev.Player.SteamId);
-			if (SCP008.playersToDamage.Count() < 1)
-				plugin.Server.Map.AnnounceScpKill("008", ev.Killer);
+			//If no player is infected and no player is a zombie, and 049 is dead (if required by config), announce
+			if (SCP008.playersToDamage.Count() < 1 && server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2).Count() < 1 && !scp049alive)
+				if(SCP008.canAnnounce)
+					plugin.Server.Map.AnnounceScpKill("008", ev.Killer);
 		}
 
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
@@ -101,6 +106,8 @@ namespace SCP008PLUGIN
 		{
 			//Empties infected list
 			SCP008.playersToDamage.Clear();
+			SCP008.canAnnounce = (server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049).Count() > 0 && plugin.GetConfigBool(SCP008.announceRequire049ConfigKey))
+				|| server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2).Count() > 0;
 			/* Poof's untested code
 			string RoomID = plugin.GetConfigString("scp008_spawn_room");
 			if (!string.IsNullOrEmpty(RoomID))
@@ -118,7 +125,7 @@ namespace SCP008PLUGIN
 			//Reload theese configs on each round restart
 			this.damageAmount = plugin.GetConfigInt(SCP008.damageAmountConfigKey);
 			this.damageInterval = plugin.GetConfigInt(SCP008.damageIntervalConfigKey);
-			this.rolesCanBecomeInfected = plugin.GetConfigIntList(SCP008.rolesCanBeInfected).ToList();
+			this.rolesCanBecomeInfected = plugin.GetConfigIntList(SCP008.rolesCanBeInfectedConfigKey).ToList();
 		}
 
 		#endregion
@@ -150,6 +157,7 @@ namespace SCP008PLUGIN
 								Vector pos = p.GetPosition();
 								p.ChangeRole(Role.SCP_049_2, spawnTeleport: false);
 								p.Teleport(pos);
+								SCP008.canAnnounce = true;
 							}
 						}
 					}

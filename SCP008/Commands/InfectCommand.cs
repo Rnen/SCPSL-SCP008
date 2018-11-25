@@ -13,12 +13,10 @@ namespace SCP008PLUGIN.Command
 		private Server Server => plugin.pluginManager.Server;
 
 		public InfectCommand(SCP008 plugin) => this.plugin = plugin;
-
 		public string GetCommandDescription() => "Infects / removes infection";
+		public string GetUsage() => "INFECT (PLAYER)";
 
-		public string GetUsage() => "INFECT PLAYER";
-
-		bool isAllowed(ICommandSender sender)
+		bool IsAllowed(ICommandSender sender)
 		{
 			//Checking if the ICommandSender is a player and setting the player variable if it is
 			Player player = (sender is Player) ? sender as Player : null;
@@ -49,7 +47,7 @@ namespace SCP008PLUGIN.Command
 
 		public string[] OnCall(ICommandSender sender, string[] args)
 		{
-			if (isAllowed(sender))
+			if (IsAllowed(sender))
 			{
 				if (args.Length == 0 && sender is Player p)
 					if (SCP008.playersToDamage.Contains(p.SteamId))

@@ -12,11 +12,8 @@ namespace SCP008PLUGIN.Command
 		private readonly SCP008 plugin;
 
 		public EnableDisableCommand(SCP008 plugin) => this.plugin = plugin;
-
 		public string GetCommandDescription() => "Enables or disables " + plugin.Details.name;
-
 		public string GetUsage() => "SCP008";
-
 
 		bool IsAllowed(ICommandSender sender)
 		{
@@ -51,7 +48,7 @@ namespace SCP008PLUGIN.Command
 		{
 			if (IsAllowed(sender))
 			{
-				if (args.Length >= 1 && bool.TryParse(args[0], out bool value)) // If the command contains a arguement and it can be parsed as a bool
+				if (args.Length > 0 && bool.TryParse(args[0], out bool value)) // If the command contains a arguement and it can be parsed as a bool
 					SCP008.isEnabled = value;
 				else 
 					SCP008.isEnabled = !SCP008.isEnabled; //If not just toggle

@@ -16,14 +16,18 @@ namespace SCP008PLUGIN
 		)]
 	public class SCP008 : Plugin
 	{
+#if (DEBUG)
+		public const string pluginVersion = "DEBUG";
+#else
 		public const string pluginVersion = "1.4";
-
+#endif
 		public static List<string> playersToDamage = new List<string>();
 		public static bool isEnabled = true;
 		public static int roundCount = 0;
-
+		public static bool canAnnounce = false;
+		
 		#region ConfigKeys
-		public const string
+		public static readonly string
 			enableConfigKey = "scp008_enabled",
 			damageAmountConfigKey = "scp008_damage_amount",
 			damageIntervalConfigKey = "scp008_damage_interval",
@@ -33,8 +37,9 @@ namespace SCP008PLUGIN
 			cureEnabledConfigKey = "scp008_cure_enabled",
 			cureChanceConfigKey = "scp008_cure_chance",
 			ranksAllowedConfigKey = "scp008_ranklist_commands",
-			rolesCanBeInfected = "scp008_roles_caninfect",
-			canHitTut = "scp008_canhit_tutorial";
+			rolesCanBeInfectedConfigKey = "scp008_roles_caninfect",
+			canHitTutConfigKey = "scp008_canhit_tutorial",
+			announceRequire049ConfigKey = "scp008_announcement_count049";
 		#endregion
 
 		public override void OnDisable() => this.Info(this.Details.name + " has been disabled.");
@@ -54,9 +59,11 @@ namespace SCP008PLUGIN
 
 			#region ConfigRegister
 			this.AddConfig(new Smod2.Config.ConfigSetting(enableConfigKey, true, Smod2.Config.SettingType.BOOL, true, "Enable/Disable plugin"));
-			this.AddConfig(new Smod2.Config.ConfigSetting(canHitTut, true, Smod2.Config.SettingType.BOOL, true, "If zombies can hit TUTORIAL players or not"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(canHitTutConfigKey, true, Smod2.Config.SettingType.BOOL, true, "If zombies can hit TUTORIAL players or not"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(announceRequire049ConfigKey, false, Smod2.Config.SettingType.BOOL, true, "If server require 049 to be dead for announcement"));
+
 			this.AddConfig(new Smod2.Config.ConfigSetting(ranksAllowedConfigKey, new string[] { }, Smod2.Config.SettingType.LIST, true, "What ranks are allowed to run the commands of the plugin"));
-			this.AddConfig(new Smod2.Config.ConfigSetting(rolesCanBeInfected, new int[] { -1 }, Smod2.Config.SettingType.NUMERIC_LIST, true, "What roles can be infected"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(rolesCanBeInfectedConfigKey, new int[] { -1 }, Smod2.Config.SettingType.NUMERIC_LIST, true, "What roles can be infected"));
 
 			this.AddConfig(new Smod2.Config.ConfigSetting(damageAmountConfigKey, 1, Smod2.Config.SettingType.NUMERIC, true, "Amount of damage per interval."));
 			this.AddConfig(new Smod2.Config.ConfigSetting(damageIntervalConfigKey, 2, Smod2.Config.SettingType.NUMERIC, true, "The interval at which to apply damage."));

@@ -12,17 +12,11 @@ namespace SCP008PLUGIN.Command
 		private SCP008 plugin;
 		public TemplateCommand(SCP008 plugin) => this.plugin = plugin;
 
-		public string GetCommandDescription()
-		{
-			return "This is a template";
-		}
+		public string GetCommandDescription() => "This is a template";
 
-		public string GetUsage()
-		{
-			return "TEMPLATECOMMAND";
-		}
+		public string GetUsage() => "TEMPLATECOMMAND";
 
-		bool isAllowed(ICommandSender sender)
+		bool IsAllowed(ICommandSender sender)
 		{
 			//Checking if the ICommandSender is a player and setting the player variable if it is
 			Player player = (sender is Player) ? sender as Player : null;
@@ -53,7 +47,7 @@ namespace SCP008PLUGIN.Command
 
 		public string[] OnCall(ICommandSender sender, string[] args)
 		{
-			if (isAllowed(sender))
+			if (IsAllowed(sender))
 			{
 				//If is allowed to do stuff
 				// DoStuff();
