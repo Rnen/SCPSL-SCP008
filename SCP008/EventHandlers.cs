@@ -103,9 +103,9 @@ namespace SCP008PLUGIN
 			SCP008.playersToDamage.Clear();
 
 			/* Untested
+			string RoomID = plugin.GetConfigString("scp008_spawn_room");
             ev.Server.GetPlayers().ForEach(p =>
             {
-                string RoomID = ConfigManager.Manager.Config.GetStringValue("scp008_spawn_room", string.Empty, true);
                 if (p.TeamRole.Role == Role.SCP_049_2 && RoomID != string.Empty)
                 {
                     plugin.pluginManager.CommandManager.CallCommand(server, "tproom", new string[] { p.PlayerId.ToString(), RoomID });
