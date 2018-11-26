@@ -14,6 +14,8 @@ namespace SCP008PLUGIN
 		private Plugin plugin;
 		private Server server;
 
+		bool isEnabled => SCP008.IsEnabled;
+
 		int damageAmount = 2, 
 			damageInterval = 1;
 		List<int> rolesCanBecomeInfected = new List<int>();
@@ -28,7 +30,7 @@ namespace SCP008PLUGIN
 
 		public void OnPlayerHurt(PlayerHurtEvent ev)
 		{
-			if (ev.Attacker.PlayerId == ev.Player.PlayerId) return;
+			if (ev.Attacker.PlayerId == ev.Player.PlayerId || !isEnabled) return;
 
 			int damageAmount = plugin.GetConfigInt(SCP008.swingDamageConfigKey);
 			int infectChance = plugin.GetConfigInt(SCP008.infectChanceConfigKey);
@@ -41,7 +43,7 @@ namespace SCP008PLUGIN
 				ev.Damage = damageAmount;
 			
 			//When a zombie damages a player, adds them to list of infected players to damage
-			if (SCP008.isEnabled && ev.Attacker.TeamRole.Role == Role.SCP_049_2
+			if (SCP008.IsEnabled && ev.Attacker.TeamRole.Role == Role.SCP_049_2
 				&& !SCP008.playersToDamage.Contains(ev.Player.SteamId)
 				&& infectChance > 0
 				&& new Random().Next(1, 100) <= infectChance)
@@ -69,19 +71,21 @@ namespace SCP008PLUGIN
 
 		public void OnPlayerDie(PlayerDeathEvent ev)
 		{
-			//If settings require 049 to die, counts 049, if not returns false
-			bool scp049alive = (plugin.GetConfigBool(SCP008.announceRequire049ConfigKey)) ? server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049).Count() > 0 : false;
+			if (!isEnabled) return;
 			//If player dies, removes them from infected list
 			if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
 				SCP008.playersToDamage.Remove(ev.Player.SteamId);
 			//If no player is infected and no player is a zombie, and 049 is dead (if required by config), announce
-			if (SCP008.playersToDamage.Count() < 1 && server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2).Count() < 1 && !scp049alive)
-				if(SCP008.canAnnounce)
-					plugin.Server.Map.AnnounceScpKill("008", ev.Killer);
+			if (SCP008.Scp008exterminated && SCP008.canAnnounce)
+			{
+				plugin.Server.Map.AnnounceScpKill("008", ev.Killer);
+				SCP008.canAnnounce = false;
+			}
 		}
 
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
 		{
+			if (!isEnabled) return;
 			int cureChance = plugin.GetConfigInt(SCP008.cureChanceConfigKey);
 			//If its enabled in config and infected list contains player and cure chance is more than, cure.
 			if (plugin.GetConfigBool(SCP008.cureEnabledConfigKey)
@@ -104,10 +108,10 @@ namespace SCP008PLUGIN
 
 		public void OnRoundStart(RoundStartEvent ev)
 		{
+			if (!isEnabled) return;
 			//Empties infected list
 			SCP008.playersToDamage.Clear();
-			SCP008.canAnnounce = (server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049).Count() > 0 && plugin.GetConfigBool(SCP008.announceRequire049ConfigKey))
-				|| server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2).Count() > 0;
+			SCP008.canAnnounce = !SCP008.Scp008exterminated;
 			/* Poof's untested code
 			string RoomID = plugin.GetConfigString("scp008_spawn_room");
 			if (!string.IsNullOrEmpty(RoomID))
@@ -118,10 +122,6 @@ namespace SCP008PLUGIN
 
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
-			//Checks enabled config on initial start
-			if (SCP008.roundCount == 0)
-				SCP008.isEnabled = plugin.GetConfigBool(SCP008.enableConfigKey);
-
 			//Reload theese configs on each round restart
 			this.damageAmount = plugin.GetConfigInt(SCP008.damageAmountConfigKey);
 			this.damageInterval = plugin.GetConfigInt(SCP008.damageIntervalConfigKey);
@@ -132,10 +132,22 @@ namespace SCP008PLUGIN
 
 
 		DateTime updateTimer = DateTime.Now;
+		DateTime announementTimer = DateTime.Now;
 
 		public void OnUpdate(UpdateEvent ev)
 		{
-			if (SCP008.isEnabled && updateTimer < DateTime.Now)
+			if (!isEnabled) return;
+			if(announementTimer < DateTime.Now)
+			{
+				announementTimer = DateTime.Now.AddSeconds(10);
+				if(SCP008.canAnnounce && SCP008.Scp008exterminated)
+				{
+					plugin.Server.Map.AnnounceScpKill("008");
+					SCP008.canAnnounce = false;
+				}
+			}
+
+			if (updateTimer < DateTime.Now)
 			{
 				//Sets when the next time this code will run
 				updateTimer = DateTime.Now.AddSeconds(damageInterval);

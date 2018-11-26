@@ -1,6 +1,8 @@
 ﻿using Smod2;
+using Smod2.API;
 using Smod2.Attributes;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SCP008PLUGIN
 {
@@ -19,19 +21,53 @@ namespace SCP008PLUGIN
 		)]
 	public class SCP008 : Plugin
 	{
-#if (DEBUG)
-		public const string pluginVersion = "DEBUG";
-#else
 		/// <summary>
 		/// The <see cref="SCP008"/> version
 		/// </summary>
 		public const string pluginVersion = "1.4";
-#endif
+
 		internal static List<string> playersToDamage = new List<string>();
-		internal static bool isEnabled = true;
 		internal static int roundCount = 0;
 		internal static bool canAnnounce = false;
-		
+		/// <summary>
+		/// Checks if all sources of SCP-008 has beeen exterminated
+		/// </summary>
+		public static bool Scp008exterminated
+		{
+			get
+			{
+				if (plugin == null) return Scp008exterminated;
+				bool scp049alive = (plugin != null && plugin.GetConfigBool(SCP008.announceRequire049ConfigKey)) ? 
+					plugin.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049).Count() > 0 :
+					false;
+				bool scp008alive = SCP008.playersToDamage.Count() < 1 && PluginManager.Manager.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2).Count() < 1 && !scp049alive;
+				return (scp049alive || scp008alive) ? false : true;
+			}
+		}
+
+		static SCP008 plugin;
+
+		private static bool _changedEnabledState = false;
+		/// <summary>
+		/// Gets the current state of <see cref="SCP008"/>
+		/// </summary>
+		public static bool IsEnabled
+		{
+			get
+			{
+				if (!_changedEnabledState && plugin != null)
+					return plugin.GetConfigBool(enableConfigKey);
+				else
+					return IsEnabled;
+			}
+			set
+			{
+				IsEnabled = value;
+				_changedEnabledState = true;
+			}
+		}
+
+
 		#region ConfigKeys
 		internal static readonly string
 			enableConfigKey = "scp008_enabled",
@@ -45,12 +81,17 @@ namespace SCP008PLUGIN
 			ranksAllowedConfigKey = "scp008_ranklist_commands",
 			rolesCanBeInfectedConfigKey = "scp008_roles_caninfect",
 			canHitTutConfigKey = "scp008_canhit_tutorial",
+			announementsenabled = "scp008_announcement_enabled",
 			announceRequire049ConfigKey = "scp008_announcement_count049";
 		#endregion
 
 		public override void OnDisable() => this.Info(this.Details.name + " has been disabled.");
 
-		public override void OnEnable() => this.Info(this.Details.name + " loaded successfully!");
+		public override void OnEnable()
+		{
+			this.Info(this.Details.name + " loaded successfully!");
+			SCP008.plugin = this;
+		}
 
 		public override void Register()
 		{
@@ -66,6 +107,7 @@ namespace SCP008PLUGIN
 			#region ConfigRegister
 			this.AddConfig(new Smod2.Config.ConfigSetting(enableConfigKey, true, Smod2.Config.SettingType.BOOL, true, "Enable/Disable plugin"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(canHitTutConfigKey, true, Smod2.Config.SettingType.BOOL, true, "If zombies can hit TUTORIAL players or not"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(announementsenabled, false, Smod2.Config.SettingType.BOOL, true, "If server announcements are enabled or not"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(announceRequire049ConfigKey, false, Smod2.Config.SettingType.BOOL, true, "If server require 049 to be dead for announcement"));
 
 			this.AddConfig(new Smod2.Config.ConfigSetting(ranksAllowedConfigKey, new string[] { }, Smod2.Config.SettingType.LIST, true, "What ranks are allowed to run the commands of the plugin"));

@@ -52,12 +52,12 @@ namespace SCP008PLUGIN.Command
 			if (IsAllowed(sender))
 			{
 				if (args.Length > 0 && bool.TryParse(args[0], out bool value)) // If the command contains a arguement and it can be parsed as a bool
-					SCP008.isEnabled = value;
+					SCP008.IsEnabled = value;
 				else 
-					SCP008.isEnabled = !SCP008.isEnabled; //If not just toggle
+					SCP008.IsEnabled = !SCP008.IsEnabled; //If not just toggle
 
 				//Returning the current state of the static bool
-				return new string[] { "SCP008 plugin set to " + SCP008.isEnabled };
+				return new string[] { "SCP008 plugin set to " + SCP008.IsEnabled };
 			}
 			else
 				return new string[] { "You dont have the required permission to run " + GetUsage() };
