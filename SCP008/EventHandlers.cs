@@ -14,7 +14,7 @@ namespace SCP008PLUGIN
 		private Plugin plugin;
 		private Server server;
 
-		bool isEnabled => SCP008.IsEnabled;
+		bool IsEnabled => SCP008.IsEnabled;
 
 		int damageAmount = 2, 
 			damageInterval = 1;
@@ -30,7 +30,7 @@ namespace SCP008PLUGIN
 
 		public void OnPlayerHurt(PlayerHurtEvent ev)
 		{
-			if (ev.Attacker.PlayerId == ev.Player.PlayerId || !isEnabled) return;
+			if (ev.Attacker.PlayerId == ev.Player.PlayerId || !IsEnabled) return;
 
 			int damageAmount = plugin.GetConfigInt(SCP008.swingDamageConfigKey);
 			int infectChance = plugin.GetConfigInt(SCP008.infectChanceConfigKey);
@@ -60,32 +60,20 @@ namespace SCP008PLUGIN
 				&& ev.Damage >= ev.Player.GetHealth())
 			{
 				ev.Damage = 0f;
-				if(SCP008.playersToDamage.Contains(ev.Player.SteamId))
-					SCP008.playersToDamage.Remove(ev.Player.SteamId);
-				Vector pos = ev.Player.GetPosition();
-				ev.Player.ChangeRole(Role.SCP_049_2, spawnTeleport: false);
-				ev.Player.Teleport(pos);
-				SCP008.canAnnounce = true;
+				ChangeToSCP008(ev.Player);
 			}
 		}
 
 		public void OnPlayerDie(PlayerDeathEvent ev)
 		{
-			if (!isEnabled) return;
 			//If player dies, removes them from infected list
 			if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
 				SCP008.playersToDamage.Remove(ev.Player.SteamId);
-			//If no player is infected and no player is a zombie, and 049 is dead (if required by config), announce
-			if (SCP008.Scp008exterminated && SCP008.canAnnounce)
-			{
-				plugin.Server.Map.AnnounceScpKill("008", ev.Killer);
-				SCP008.canAnnounce = false;
-			}
 		}
 
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
 		{
-			if (!isEnabled) return;
+			if (!IsEnabled) return;
 			int cureChance = plugin.GetConfigInt(SCP008.cureChanceConfigKey);
 			//If its enabled in config and infected list contains player and cure chance is more than, cure.
 			if (plugin.GetConfigBool(SCP008.cureEnabledConfigKey)
@@ -108,10 +96,10 @@ namespace SCP008PLUGIN
 
 		public void OnRoundStart(RoundStartEvent ev)
 		{
-			if (!isEnabled) return;
+			if (!IsEnabled) return;
 			//Empties infected list
 			SCP008.playersToDamage.Clear();
-			SCP008.canAnnounce = !SCP008.Scp008exterminated;
+			SCP008.CanAnnounce = !SCP008.Scp008Exterminated;
 			/* Poof's untested code
 			string RoomID = plugin.GetConfigString("scp008_spawn_room");
 			if (!string.IsNullOrEmpty(RoomID))
@@ -136,14 +124,16 @@ namespace SCP008PLUGIN
 
 		public void OnUpdate(UpdateEvent ev)
 		{
-			if (!isEnabled) return;
+			if (!IsEnabled) return;
 			if(announementTimer < DateTime.Now)
 			{
-				announementTimer = DateTime.Now.AddSeconds(10);
-				if(SCP008.canAnnounce && SCP008.Scp008exterminated)
+				announementTimer = DateTime.Now.AddSeconds(5);
+				if(SCP008.CanAnnounce && SCP008.Scp008Exterminated)
 				{
+					plugin.Debug("Before announce: \n" + "  - Can Announce: " + SCP008.CanAnnounce + "\n" + "  - 008 Exterminated: " + SCP008.Scp008Exterminated);
 					plugin.Server.Map.AnnounceScpKill("008");
-					SCP008.canAnnounce = false;
+					SCP008.CanAnnounce = false;
+					plugin.Debug("After announce: \n" + "  - Can Announce: " + SCP008.CanAnnounce + "\n" + "  - 008 Exterminated: " + SCP008.Scp008Exterminated);
 				}
 			}
 
@@ -165,11 +155,7 @@ namespace SCP008PLUGIN
 							else if (damageAmount >= p.GetHealth())
 							{
 								//If the damage kills the human, transform
-								SCP008.playersToDamage.Remove(p.SteamId);
-								Vector pos = p.GetPosition();
-								p.ChangeRole(Role.SCP_049_2, spawnTeleport: false);
-								p.Teleport(pos);
-								SCP008.canAnnounce = true;
+								ChangeToSCP008(p);
 							}
 						}
 					}
@@ -181,5 +167,17 @@ namespace SCP008PLUGIN
 			if (SCP008.playersToDamage.Contains(ev.Player.SteamId))
 				SCP008.playersToDamage.Remove(ev.Player.SteamId);
 		}
+
+		internal void ChangeToSCP008(Player player)
+		{
+			if (SCP008.playersToDamage.Contains(player.SteamId))
+				SCP008.playersToDamage.Remove(player.SteamId);
+			Vector pos = player.GetPosition();
+			player.ChangeRole(Role.SCP_049_2, spawnTeleport: false);
+			player.Teleport(pos);
+			SCP008.CanAnnounce = true;
+			plugin.Debug("Changed " + player.Name + " to SCP-008");
+		}
+
 	}
 }

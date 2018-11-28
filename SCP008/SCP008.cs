@@ -22,26 +22,41 @@ namespace SCP008PLUGIN
 	public class SCP008 : Plugin
 	{
 		/// <summary>
-		/// The <see cref="SCP008"/> version
+		/// The current <see cref="SCP008"/> plugin version
 		/// </summary>
 		public const string pluginVersion = "1.4";
 
 		internal static List<string> playersToDamage = new List<string>();
 		internal static int roundCount = 0;
-		internal static bool canAnnounce = false;
-		/// <summary>
-		/// Checks if all sources of SCP-008 has beeen exterminated
-		/// </summary>
-		public static bool Scp008exterminated
+		internal static bool CanAnnounce
 		{
 			get
 			{
-				if (plugin == null) return Scp008exterminated;
-				bool scp049alive = (plugin != null && plugin.GetConfigBool(SCP008.announceRequire049ConfigKey)) ? 
-					plugin.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049).Count() > 0 :
-					false;
-				bool scp008alive = SCP008.playersToDamage.Count() < 1 && PluginManager.Manager.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2).Count() < 1 && !scp049alive;
-				return (scp049alive || scp008alive) ? false : true;
+				if (plugin != null && plugin.GetConfigBool(SCP008.announementsenabled)) return CanAnnounce;
+				else return false;
+			}
+			set
+			{
+				plugin.Debug("CanAnnounce set to: " + value);
+				CanAnnounce = value;
+			}
+		}
+		/// <summary>
+		/// Checks if all sources of SCP-008 has beeen exterminated
+		/// </summary>
+		public static bool Scp008Exterminated
+		{
+			get
+			{
+				if (plugin != null)
+				{
+					bool scp049alive = (plugin.GetConfigBool(SCP008.announceRequire049ConfigKey)) ?
+						plugin.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049).Count() > 0 : false;
+					bool scp008alive = SCP008.playersToDamage.Count() < 1 &&
+						PluginManager.Manager.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2).Count() < 1 && !scp049alive;
+					return (scp049alive || scp008alive) ? false : true;
+				}
+				else return false;
 			}
 		}
 
