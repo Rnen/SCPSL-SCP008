@@ -49,15 +49,17 @@ namespace SCP008PLUGIN.Command
 
 		public string[] OnCall(ICommandSender sender, string[] args)
 		{
+			if(args.Length > 0 && args[0] == "help")
+			 return plugin.pluginManager.CommandManager.CallCommand(sender, "008help", args);
 			if (IsAllowed(sender))
 			{
 				if (args.Length > 0 && bool.TryParse(args[0], out bool value)) // If the command contains a arguement and it can be parsed as a bool
-					SCP008.IsEnabled = value;
+					plugin.SetIsEnabled(value);
 				else 
-					SCP008.IsEnabled = !SCP008.IsEnabled; //If not just toggle
+					plugin.SetIsEnabled(!plugin.GetIsEnabled()); //If not just toggle
 
 				//Returning the current state of the static bool
-				return new string[] { "SCP008 plugin set to " + SCP008.IsEnabled };
+				return new string[] { "SCP008 plugin set to " + plugin.GetIsEnabled() };
 			}
 			else
 				return new string[] { "You dont have the required permission to run " + GetUsage() };

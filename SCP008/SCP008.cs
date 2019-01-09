@@ -1,6 +1,7 @@
 ﻿using Smod2;
 using Smod2.API;
 using Smod2.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,73 +15,22 @@ namespace SCP008PLUGIN
 		name = "SCP008",
 		description = "Plugin that replicates SCP008 behaviour",
 		id = "rnen.scp.008",
-		version = pluginVersion,
+		version = assemblyVersion + "-2",
 		SmodMajor = 3,
 		SmodMinor = 1,
 		SmodRevision = 22
 		)]
-	public class SCP008 : Plugin
+	public partial class SCP008 : Plugin
 	{
 		/// <summary>
 		/// The current <see cref="SCP008"/> plugin version
 		/// </summary>
-		public const string pluginVersion = "1.4";
+		public const string assemblyVersion = "1.4";
 
 		internal static List<string> playersToDamage = new List<string>();
 		internal static int roundCount = 0;
-		internal static bool CanAnnounce
-		{
-			get
-			{
-				if (plugin != null && plugin.GetConfigBool(SCP008.announementsenabled)) return CanAnnounce;
-				else return false;
-			}
-			set
-			{
-				plugin.Debug("CanAnnounce set to: " + value);
-				CanAnnounce = value;
-			}
-		}
-		/// <summary>
-		/// Checks if all sources of SCP-008 has beeen exterminated
-		/// </summary>
-		public static bool Scp008Exterminated
-		{
-			get
-			{
-				if (plugin != null)
-				{
-					bool scp049alive = (plugin.GetConfigBool(SCP008.announceRequire049ConfigKey)) ?
-						plugin.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049).Count() > 0 : false;
-					bool scp008alive = SCP008.playersToDamage.Count() < 1 &&
-						PluginManager.Manager.Server.GetPlayers().Where(p => p.TeamRole.Role == Role.SCP_049_2).Count() < 1 && !scp049alive;
-					return (scp049alive || scp008alive) ? false : true;
-				}
-				else return false;
-			}
-		}
 
 		static SCP008 plugin;
-
-		private static bool _changedEnabledState = false;
-		/// <summary>
-		/// Gets the current state of <see cref="SCP008"/>
-		/// </summary>
-		public static bool IsEnabled
-		{
-			get
-			{
-				if (!_changedEnabledState && plugin != null)
-					return plugin.GetConfigBool(enableConfigKey);
-				else
-					return IsEnabled;
-			}
-			set
-			{
-				IsEnabled = value;
-				_changedEnabledState = true;
-			}
-		}
 
 
 		#region ConfigKeys
@@ -91,6 +41,7 @@ namespace SCP008PLUGIN
 			swingDamageConfigKey = "scp008_swing_damage",
 			zombieKillInfectsConfigKey = "scp008_zombiekill_infects",
 			infectChanceConfigKey = "scp008_infect_chance",
+			infectKillChanceConfigKey = "scp008_killinfect_chance",
 			cureEnabledConfigKey = "scp008_cure_enabled",
 			cureChanceConfigKey = "scp008_cure_chance",
 			ranksAllowedConfigKey = "scp008_ranklist_commands",
@@ -117,6 +68,7 @@ namespace SCP008PLUGIN
 			#region CommandRegister
 			this.AddCommands(new string[] { "scp008", "scp08", "scp8" }, new Command.EnableDisableCommand(this));
 			this.AddCommands(new string[] { "infect" }, new Command.InfectCommand(this));
+			this.AddCommands(new string[] { "008help", "scp008help", "scp8help" }, new Command.HelpCommand(this));
 			#endregion
 
 			#region ConfigRegister
@@ -133,6 +85,7 @@ namespace SCP008PLUGIN
 			this.AddConfig(new Smod2.Config.ConfigSetting(swingDamageConfigKey, 0, Smod2.Config.SettingType.NUMERIC, true, "The damage applied on swing."));
 
 			this.AddConfig(new Smod2.Config.ConfigSetting(zombieKillInfectsConfigKey, false, Smod2.Config.SettingType.BOOL, true, "If regular kills by zombies should infect"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(infectKillChanceConfigKey, 100, Smod2.Config.SettingType.NUMERIC, true, "Infection Chance on zombie kill"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(infectChanceConfigKey, 100, Smod2.Config.SettingType.NUMERIC, true, "Infection Chance"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(cureEnabledConfigKey, true, Smod2.Config.SettingType.BOOL, true, "If medpacks can stop the infection"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(cureChanceConfigKey, 100, Smod2.Config.SettingType.NUMERIC, true, "Cure chance of medpacks"));

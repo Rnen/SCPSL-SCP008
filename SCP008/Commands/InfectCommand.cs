@@ -65,23 +65,44 @@ namespace SCP008PLUGIN.Command
 					}
 				else if (args.Length > 0)
 				{
-					List<Player> players = Server.GetPlayers(args[0]);
-					Player player;
-					if (players == null || players.Count == 0) return new string[] { "No players on the server called " + args[0] };
-					player = players.OrderBy(pl => pl.Name.Length).First();
-
-					if (!SCP008.playersToDamage.Contains(player.SteamId))
+					if (args[0].ToLower() == "all" || args[0] == "*")
 					{
-						SCP008.playersToDamage.Add(player.SteamId);
-						return new string[] { "Infected " + player.Name };
-					}
-					else if (SCP008.playersToDamage.Contains(player.SteamId))
-					{
-						SCP008.playersToDamage.Remove(player.SteamId);
-						return new string[] { "Cured infected " + player.Name };
+						int x = 0;
+						foreach(Player pl in Server.GetPlayers()
+							.Where(ply => 
+							ply.TeamRole.Role != Role.SPECTATOR &&
+							ply.TeamRole.Role != Role.UNASSIGNED &&
+							ply.TeamRole.Role != Role.ZOMBIE))
+						{
+							string arg = (args.Length > 1 && !string.IsNullOrEmpty(args[1])) ? args[1].ToLower() : "";
+							if (SCP008.playersToDamage.Contains(pl.SteamId) && arg != "infect")
+								SCP008.playersToDamage.Remove(pl.SteamId);
+							else if(!SCP008.playersToDamage.Contains(pl.SteamId) && arg != "infect")
+									SCP008.playersToDamage.Add(pl.SteamId);
+							x++;
+						}
+						return new string[] { "Toggled infection on " + x + " players!" };
 					}
 					else
-						return new string[] { this.plugin.Details.id + " INFECT ERROR" };
+					{
+						List<Player> players = Server.GetPlayers(args[0]);
+						Player player;
+						if (players == null || players.Count == 0) return new string[] { "No players on the server called " + args[0] };
+						player = players.OrderBy(pl => pl.Name.Length).First();
+
+						if (!SCP008.playersToDamage.Contains(player.SteamId))
+						{
+							SCP008.playersToDamage.Add(player.SteamId);
+							return new string[] { "Infected " + player.Name };
+						}
+						else if (SCP008.playersToDamage.Contains(player.SteamId))
+						{
+							SCP008.playersToDamage.Remove(player.SteamId);
+							return new string[] { "Cured infected " + player.Name };
+						}
+						else
+							return new string[] { this.plugin.Details.id + " INFECT ERROR" };
+					}
 				}
 				else
 					return new string[] { GetUsage() };
