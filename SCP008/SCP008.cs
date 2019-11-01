@@ -15,17 +15,17 @@ namespace SCP008PLUGIN
 		name = "SCP008",
 		description = "Plugin that replicates SCP008 behaviour",
 		id = "rnen.scp.008",
-		version = assemblyVersion + "-2",
+		version = assemblyVersion + "-0",
 		SmodMajor = 3,
-		SmodMinor = 1,
-		SmodRevision = 22
+		SmodMinor = 5,
+		SmodRevision = 0
 		)]
 	public partial class SCP008 : Plugin
 	{
 		/// <summary>
 		/// The current <see cref="SCP008"/> plugin version
 		/// </summary>
-		public const string assemblyVersion = "1.4";
+		public const string assemblyVersion = "1.5";
 
 		internal static List<string> playersToDamage = new List<string>();
 		internal static int roundCount = 0;
@@ -49,11 +49,14 @@ namespace SCP008PLUGIN
 			announceRequire049ConfigKey = "scp008_announcement_count049";
 		#endregion
 
-		public override void OnDisable() => this.Info(this.Details.name + " has been disabled.");
+		public override void OnDisable()
+		{
+			//Info(Details.name + " has been disabled.");
+		}
 
 		public override void OnEnable()
 		{
-			this.Info(this.Details.name + " loaded successfully!");
+			//this.Info(this.Details.name + " loaded successfully!");
 			SCP008.plugin = this;
 		}
 
