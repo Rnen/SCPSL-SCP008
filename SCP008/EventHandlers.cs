@@ -12,7 +12,7 @@ namespace SCP008PLUGIN
 		IEventHandlerPlayerHurt, IEventHandlerPlayerDie, IEventHandlerMedkitUse, IEventHandlerUpdate, IEventHandlerCheckEscape
 	{
 		private SCP008 plugin;
-		private Server server;
+		private Server Server => PluginManager.Manager.Server;
 
 		bool IsEnabled => plugin.GetIsEnabled();
 
@@ -23,7 +23,6 @@ namespace SCP008PLUGIN
 		public EventHandlers(SCP008 plugin)
 		{
 			this.plugin = plugin;
-			this.server = plugin.pluginManager.Server;
 		}
 
 		#region PlayerSpecific
@@ -56,11 +55,9 @@ namespace SCP008PLUGIN
 					SCP008.playersToDamage.Add(ev.Player.SteamId);
 			}
 
-			//If a zombie kills a person with "zombiekill_infect" set to true, transform
-			if(ev.Attacker.TeamRole.Role == Role.ZOMBIE
-				&& plugin.GetConfigBool(SCP008.zombieKillInfectsConfigKey)
+			if (ev.Attacker.TeamRole.Role == Role.ZOMBIE
 				&& ev.Damage >= ev.Player.GetHealth()
-				&& new Random().Next(1, 100) <= infectOnKillChance)
+				&& (infectOnKillChance > 99 || new Random().Next(1, 100) <= infectOnKillChance))
 			{
 				ev.Damage = 0f;
 				ChangeToSCP008(ev.Player);
@@ -77,12 +74,11 @@ namespace SCP008PLUGIN
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
 		{
 			if (!IsEnabled) return;
-			bool cureEnabled = plugin.GetConfigBool(SCP008.cureEnabledConfigKey);
-			int cureChance = (cureEnabled) ? plugin.GetConfigInt(SCP008.cureChanceConfigKey) : 0;
+			int cureChance = plugin.GetConfigInt(SCP008.cureChanceConfigKey);
 			//If its enabled in config and infected list contains player and cure chance is more than, cure.
-			if (cureEnabled
-				&& SCP008.playersToDamage.Contains(ev.Player.SteamId) 
-				&& cureChance > 0 && cureChance >= new Random().Next(1,100))
+			if (SCP008.playersToDamage.Contains(ev.Player.SteamId) 
+				&& cureChance > 0 
+				&& cureChance >= new Random().Next(1,100))
 				SCP008.playersToDamage.Remove(ev.Player.SteamId);
 		}
 
@@ -150,8 +146,8 @@ namespace SCP008PLUGIN
 				updateTimer = DateTime.Now.AddSeconds(damageInterval);
 
 				//If the server isnt empty, run code on all players
-				if (server.GetPlayers().Count > 0)
-					foreach(Player p in server.GetPlayers())
+				if (Server.GetPlayers().Count > 0)
+					foreach(Player p in Server.GetPlayers())
 					{
 						//If the victim is human and the player is in the infected list
 						if ((p.TeamRole.Team != Smod2.API.Team.SCP && p.TeamRole.Team != Smod2.API.Team.SPECTATOR) && SCP008.playersToDamage.Contains(p.SteamId))
