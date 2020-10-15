@@ -50,7 +50,7 @@ namespace SCP008PLUGIN.Command
 		public string[] OnCall(ICommandSender sender, string[] args)
 		{
 			if(args.Length > 0 && args[0] == "help")
-			 return plugin.pluginManager.CommandManager.CallCommand(sender, "008help", args);
+			 return plugin.PluginManager.CommandManager.CallCommand(sender, "008help", args);
 			if (IsAllowed(sender))
 			{
 				if (args.Length > 0 && bool.TryParse(args[0], out bool value)) // If the command contains a arguement and it can be parsed as a bool

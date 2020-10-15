@@ -69,7 +69,7 @@ namespace SCP008PLUGIN
 			#region CommandRegister
 			this.AddCommands(new string[] { "scp008", "scp08", "scp8" }, new Command.EnableDisableCommand(this));
 			this.AddCommands(new string[] { "infect" }, new Command.InfectCommand(this));
-			this.AddCommands(new string[] { "008help", "scp008help", "scp8help" }, new Command.HelpCommand(this));
+			this.AddCommands(new string[] { "008help", "scp008help", "scp8help" }, new Command.HelpCommand());
 			#endregion
 
 			#region ConfigRegister

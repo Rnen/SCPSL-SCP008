@@ -12,9 +12,6 @@ namespace SCP008PLUGIN.Command
 	/// </summary>
 	class HelpCommand : ICommandHandler
 	{
-		private readonly SCP008 plugin;
-		public HelpCommand(SCP008 plugin) => this.plugin = plugin;
-
 		public string GetCommandDescription() => "Opens the SCP-008 GitHub page";
 
 		public string GetUsage() => "scp008help";

@@ -12,7 +12,7 @@ namespace SCP008PLUGIN.Command
 	/// </summary>
 	class TemplateCommand : ICommandHandler
 	{
-		private SCP008 plugin;
+		private readonly SCP008 plugin;
 		public TemplateCommand(SCP008 plugin) => this.plugin = plugin;
 
 		public string GetCommandDescription() => "This is a template";

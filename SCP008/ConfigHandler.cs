@@ -25,10 +25,9 @@ namespace SCP008PLUGIN
 		/// </summary>
 		internal bool SCP008Dead()
 		{
-			bool scp049alive = (Get049Required()) ?
-				plugin.Server.GetPlayers(Role.SCP_049).Count > 0 : false;
+			bool scp049alive = Get049Required() && plugin.Server.GetPlayers(Smod2.API.RoleType.SCP_049).Count > 0;
 			bool scp008alive = SCP008.playersToDamage.Count < 1 &&
-				scp049alive || this.Server.GetPlayers(Role.SCP_049_2).Count > 0;
+				scp049alive || this.Server.GetPlayers(Smod2.API.RoleType.SCP_049_2).Count > 0;
 			return !scp008alive;
 		}
 

@@ -13,7 +13,7 @@ namespace SCP008PLUGIN.Command
 	class InfectCommand : ICommandHandler
 	{
 		private readonly SCP008 plugin;
-		private Server Server => plugin.pluginManager.Server;
+		private Server Server => plugin.PluginManager.Server;
 
 		public InfectCommand(SCP008 plugin) => this.plugin = plugin;
 		public string GetCommandDescription() => "Infects / removes infection";
@@ -53,14 +53,14 @@ namespace SCP008PLUGIN.Command
 			if (IsAllowed(sender))
 			{
 				if (args.Length == 0 && sender is Player p)
-					if (SCP008.playersToDamage.Contains(p.SteamId))
+					if (SCP008.playersToDamage.Contains(p.UserId))
 					{
-						SCP008.playersToDamage.Remove(p.SteamId);
+						SCP008.playersToDamage.Remove(p.UserId);
 						return new string[] { "Cured infected " + p.Name };
 					}
 					else
 					{
-						SCP008.playersToDamage.Add(p.SteamId);
+						SCP008.playersToDamage.Add(p.UserId);
 						return new string[] { "Infected " + p.Name };
 					}
 				else if (args.Length > 0)
@@ -70,15 +70,15 @@ namespace SCP008PLUGIN.Command
 						int x = 0;
 						foreach(Player pl in Server.GetPlayers()
 							.Where(ply => 
-							ply.TeamRole.Role != Role.SPECTATOR &&
-							ply.TeamRole.Role != Role.UNASSIGNED &&
-							ply.TeamRole.Role != Role.ZOMBIE))
+							ply.TeamRole.Role != Smod2.API.RoleType.SPECTATOR &&
+							ply.TeamRole.Role != Smod2.API.RoleType.UNASSIGNED &&
+							ply.TeamRole.Role != Smod2.API.RoleType.ZOMBIE))
 						{
 							string arg = (args.Length > 1 && !string.IsNullOrEmpty(args[1])) ? args[1].ToLower() : "";
-							if (SCP008.playersToDamage.Contains(pl.SteamId) && arg != "infect")
-								SCP008.playersToDamage.Remove(pl.SteamId);
-							else if(!SCP008.playersToDamage.Contains(pl.SteamId) && arg != "infect")
-									SCP008.playersToDamage.Add(pl.SteamId);
+							if (SCP008.playersToDamage.Contains(pl.UserId) && arg != "infect")
+								SCP008.playersToDamage.Remove(pl.UserId);
+							else if(!SCP008.playersToDamage.Contains(pl.UserId) && arg != "infect")
+									SCP008.playersToDamage.Add(pl.UserId);
 							x++;
 						}
 						return new string[] { "Toggled infection on " + x + " players!" };
@@ -90,14 +90,14 @@ namespace SCP008PLUGIN.Command
 						if (players == null || players.Count == 0) return new string[] { "No players on the server called " + args[0] };
 						player = players.OrderBy(pl => pl.Name.Length).First();
 
-						if (!SCP008.playersToDamage.Contains(player.SteamId))
+						if (!SCP008.playersToDamage.Contains(player.UserId))
 						{
-							SCP008.playersToDamage.Add(player.SteamId);
+							SCP008.playersToDamage.Add(player.UserId);
 							return new string[] { "Infected " + player.Name };
 						}
-						else if (SCP008.playersToDamage.Contains(player.SteamId))
+						else if (SCP008.playersToDamage.Contains(player.UserId))
 						{
-							SCP008.playersToDamage.Remove(player.SteamId);
+							SCP008.playersToDamage.Remove(player.UserId);
 							return new string[] { "Cured infected " + player.Name };
 						}
 						else
