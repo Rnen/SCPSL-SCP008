@@ -17,8 +17,8 @@ namespace SCP008PLUGIN
 		id = "rnen.scp.008",
 		version = assemblyVersion + "-0",
 		SmodMajor = 3,
-		SmodMinor = 5,
-		SmodRevision = 0
+		SmodMinor = 9,
+		SmodRevision = 9
 		)]
 	public partial class SCP008 : Plugin
 	{
