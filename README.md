@@ -24,7 +24,7 @@ scp008_canhit_tutorial | true | If zombies can hit tutorial players or not
 scp008_anyDeath | false | If any death after infection should transform players
 scp008_assist079_experience | 35f | SCP 079 EXP received for assists 
 scp008_broadcast | true | Players receive a personal broadcast upon infection and transformation
-scp008_broadcast_duration | Duration of the personal broadcast above
+scp008_broadcast_duration | 7 | Duration of the personal broadcast above
 
 ## Commands
 Command | Arguements (If Any) | Description
