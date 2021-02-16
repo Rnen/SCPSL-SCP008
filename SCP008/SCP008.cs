@@ -25,9 +25,9 @@ namespace SCP008PLUGIN
 		/// <summary>
 		/// The current <see cref="SCP008"/> plugin version
 		/// </summary>
-		public const string assemblyVersion = "1.6";
+		public const string assemblyVersion = "1.7";
 
-		public static string TranslationFileName => plugin.Details.name + "-Translations";
+		public string TranslationFileName => this.Details.name + "-Translations";
 
 		internal static List<string> playersToDamage = new List<string>();
 		internal static int roundCount = 0;
