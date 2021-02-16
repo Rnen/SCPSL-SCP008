@@ -52,7 +52,7 @@ namespace SCP008PLUGIN
 				if( (rolesCanBecomeInfected == null || rolesCanBecomeInfected.Count == 0 || rolesCanBecomeInfected.FirstOrDefault() == -1) 
 					|| 
 					(rolesCanBecomeInfected.Count > 0 && rolesCanBecomeInfected.Contains((int)ev.Player.TeamRole.Role)))
-					SCP008.playersToDamage.Add(ev.Player.UserId);
+					Infect(ev.Player);
 			}
 
 			if (ev.Attacker.TeamRole.Role == Smod2.API.RoleType.SCP_049_2
@@ -67,7 +67,12 @@ namespace SCP008PLUGIN
 		public void OnPlayerDie(PlayerDeathEvent ev)
 		{
 			//If player dies, removes them from infected list
-			if (SCP008.playersToDamage.Contains(ev.Player.UserId))
+			if (plugin.GetConfigBool(SCP008.anyDeathCounts))
+			{
+				ev.SpawnRagdoll = false;
+				ChangeToSCP008(ev.Player);
+			}
+			else if (SCP008.playersToDamage.Contains(ev.Player.UserId))
 				SCP008.playersToDamage.Remove(ev.Player.UserId);
 		}
 
@@ -166,8 +171,18 @@ namespace SCP008PLUGIN
 				SCP008.playersToDamage.Remove(ev.Player.UserId);
 		}
 
+		internal void Infect(Player player)
+		{
+			if (player == null || SCP008.playersToDamage.Contains(player.UserId))
+				return;
+			SCP008.playersToDamage.Add(player.UserId);
+			player.PersonalBroadcast((uint)plugin.GetConfigInt(SCP008.personalBroadcastDuration), plugin.GetTranslation("youAreInfected"), false);
+		}
+
 		internal void ChangeToSCP008(Player player)
 		{
+			foreach (var scp in Scp079PlayerScript.instances)
+				scp.AddExperience(plugin.GetConfigFloat(SCP008.assist079EXP));
 			if (SCP008.playersToDamage.Contains(player.UserId))
 				SCP008.playersToDamage.Remove(player.UserId);
 			Vector pos = player.GetPosition();
@@ -175,6 +190,7 @@ namespace SCP008PLUGIN
 			player.Teleport(pos);
 			plugin.SetCanAnnounce(true);
 			plugin.Debug("Changed " + player.Name + " to SCP-008");
+			player.PersonalBroadcast((uint)plugin.GetConfigInt(SCP008.personalBroadcastDuration), plugin.GetTranslation("youAre008"), false);
 		}
 	}
 }

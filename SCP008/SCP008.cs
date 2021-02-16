@@ -27,6 +27,8 @@ namespace SCP008PLUGIN
 		/// </summary>
 		public const string assemblyVersion = "1.6";
 
+		public static string TranslationFileName => plugin.Details.name + "-Translations";
+
 		internal static List<string> playersToDamage = new List<string>();
 		internal static int roundCount = 0;
 
@@ -46,7 +48,11 @@ namespace SCP008PLUGIN
 			rolesCanBeInfectedConfigKey = "scp008_roles_caninfect",
 			canHitTutConfigKey = "scp008_canhit_tutorial",
 			announementsenabled = "scp008_announcement_enabled",
-			announceRequire049ConfigKey = "scp008_announcement_count049";
+			announceRequire049ConfigKey = "scp008_announcement_count049",
+			anyDeathCounts = "scp008_anyDeath",
+			assist079EXP = "scp008_assist079_experience",
+			personalBroadcast = "scp008_broadcast",
+			personalBroadcastDuration = "scp008_broadcast_duration";
 		#endregion
 
 		public override void OnDisable()
@@ -80,10 +86,15 @@ namespace SCP008PLUGIN
 
 			this.AddConfig(new Smod2.Config.ConfigSetting(ranksAllowedConfigKey, new string[0], true, "What ranks are allowed to run the commands of the plugin"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(rolesCanBeInfectedConfigKey, new int[] { -1 }, true, "What roles can be infected"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(anyDeathCounts, false, true, "If any death cause while infected should convert"));
 
 			this.AddConfig(new Smod2.Config.ConfigSetting(damageAmountConfigKey, 1, true, "Amount of damage per interval."));
 			this.AddConfig(new Smod2.Config.ConfigSetting(damageIntervalConfigKey, 2, true, "The interval at which to apply damage."));
 			this.AddConfig(new Smod2.Config.ConfigSetting(swingDamageConfigKey, 0, true, "The damage applied on swing."));
+			this.AddConfig(new Smod2.Config.ConfigSetting(assist079EXP, 35f, true, "Amount of EXP to award 079 for assisting"));
+
+			this.AddConfig(new Smod2.Config.ConfigSetting(personalBroadcast, true, true, "If people should be notified via a personal broadcast on convert"));
+			this.AddConfig(new Smod2.Config.ConfigSetting(personalBroadcastDuration, 7, true, "Personal broadcast duration"));
 
 			this.AddConfig(new Smod2.Config.ConfigSetting(infectKillChanceConfigKey, 100, true, "Infection Chance on zombie kill"));
 			this.AddConfig(new Smod2.Config.ConfigSetting(infectChanceConfigKey, 100, true, "Infection Chance"));
@@ -91,6 +102,9 @@ namespace SCP008PLUGIN
 
 			this.AddConfig(new Smod2.Config.ConfigSetting("scp008_spawn_room", string.Empty, true, "The room ID that scp008 will spawn."));
 			#endregion
+
+			this.AddTranslation(new Smod2.Lang.LangSetting("youAre008", "You are now SCP008! Infect others with melee", TranslationFileName));
+			this.AddTranslation(new Smod2.Lang.LangSetting("youAreInfected", "You have been infected by SCP008!", TranslationFileName));
 		}
 	}
 }
