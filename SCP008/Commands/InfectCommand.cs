@@ -17,7 +17,9 @@ namespace SCP008PLUGIN.Command
 
 		public InfectCommand(SCP008 plugin) => this.plugin = plugin;
 		public string GetCommandDescription() => "Infects / removes infection";
-		public string GetUsage() => "INFECT (PLAYER)";
+		public string GetUsage() => "INFECT (PLAYER) [SUBCOMMAND]";
+
+		public string[] SubCommands = new string[] { "+ / add", "infect+ / ++ / zero / patientzero", "cure / remove / -" };
 
 		bool IsAllowed(ICommandSender sender)
 		{
@@ -52,63 +54,92 @@ namespace SCP008PLUGIN.Command
 		{
 			if (IsAllowed(sender))
 			{
-				if (args.Length == 0 && sender is Player p)
-					if (SCP008.playersToDamage.Contains(p.UserId))
+				if (args.Length == 0 && sender is Player p && p != null)
+					try
 					{
-						SCP008.playersToDamage.Remove(p.UserId);
-						return new string[] { "Cured infected " + p.Name };
+						if (SCP008.infected.Contains(p.UserId))
+						{
+							Utility.CureInfection(p, true);
+							return new string[] { "Cured infected " + p.Name };
+						}
+						else
+						{
+							Utility.Infect(p);
+							return new string[] { "Infected " + p.Name };
+						}
 					}
-					else
+					catch (Exception e)
 					{
-						SCP008.playersToDamage.Add(p.UserId);
-						return new string[] { "Infected " + p.Name };
+						return new string[] { "Infect command exception " + e };
 					}
 				else if (args.Length > 0)
 				{
-					if (args[0].ToLower() == "all" || args[0] == "*")
+					string arg1 = (args.Length > 1 && !string.IsNullOrEmpty(args[1])) ? args[1].ToLower() : "";
+					List<Player> players = new List<Player>();
+					switch (args[0].ToLower())
 					{
-						int x = 0;
-						foreach(Player pl in Server.GetPlayers()
-							.Where(ply => 
-							ply.TeamRole.Role != Smod2.API.RoleType.SPECTATOR &&
-							ply.TeamRole.Role != Smod2.API.RoleType.UNASSIGNED &&
-							ply.TeamRole.Role != Smod2.API.RoleType.ZOMBIE))
-						{
-							string arg = (args.Length > 1 && !string.IsNullOrEmpty(args[1])) ? args[1].ToLower() : "";
-							if (SCP008.playersToDamage.Contains(pl.UserId) && arg != "infect")
-								SCP008.playersToDamage.Remove(pl.UserId);
-							else if(!SCP008.playersToDamage.Contains(pl.UserId) && arg != "infect")
-									SCP008.playersToDamage.Add(pl.UserId);
-							x++;
-						}
-						return new string[] { "Toggled infection on " + x + " players!" };
+						case "all":
+						case "*":
+							players = Server.GetPlayers(i => i.TeamRole.Team != TeamType.SPECTATOR || i.TeamRole.Team != TeamType.NONE);
+							break;
+						case "list":
+						case "infected":
+							return new string[] { "Infected Players:", string.Join("\n", SCP008.InfectedPlayers.OrderBy(s => s.Name).Select(i => i.Name).ToList()) };
+						case "help":
+						case "subcommand":
+						case "subcommands":
+							return new string[] { GetUsage(), "Availabile subcommands:" + string.Join(" ,", SubCommands) };
+						default:
+							players = Server.GetPlayers(args[0]);
+							break;
 					}
-					else
-					{
-						List<Player> players = Server.GetPlayers(args[0]);
-						Player player;
-						if (players == null || players.Count == 0) return new string[] { "No players on the server called " + args[0] };
-						player = players.OrderBy(pl => pl.Name.Length).First();
 
-						if (!SCP008.playersToDamage.Contains(player.UserId))
+					if (players == null || players.Count == 0)
+						return new string[] { "No players on the server called " + args[0] };
+
+					string ret = this.plugin.Details.id + " INFECT COMMAND ERROR";
+
+					foreach (Player player in players)
+						switch (arg1.ToLower())
 						{
-							SCP008.playersToDamage.Add(player.UserId);
-							return new string[] { "Infected " + player.Name };
+							case "+":
+							case "add":
+								Utility.Infect(player);
+								break;
+							case "++":
+							case "add+":
+							case "zero":
+							case "patientzero":
+								Utility.Infect(player, true);
+								return new string[] { $"Made \"{player.Name}\" into Patient Zero!" };
+							case "cure":
+							case "remove":
+							case "-":
+								SCP008.patientZero = "";
+								Utility.CureInfection(player);
+								if (players.Count == 1)
+									return new string[] { $"Cured \"{player.Name}\" from SCP008 infection!" };
+								ret = $"Cured {players.Count} players from SCP008 infection!";
+								break;
+							case "":
+							default:
+								if (SCP008.infected.Contains(player.UserId))
+									Utility.CureInfection(player);
+								else
+									Utility.Infect(player);
+								break;
 						}
-						else if (SCP008.playersToDamage.Contains(player.UserId))
-						{
-							SCP008.playersToDamage.Remove(player.UserId);
-							return new string[] { "Cured infected " + player.Name };
-						}
-						else
-							return new string[] { this.plugin.Details.id + " INFECT ERROR" };
-					}
+					if (!string.IsNullOrEmpty(arg1))
+						return new string[] { $"Used {arg1} on {players.Count} players!" };
+					else
+						return new string[] { $"Toggled infection on {players.Count} players!" };
 				}
 				else
-					return new string[] { GetUsage() };
+					return new[] { GetUsage() };
 			}
 			else
 				return new string[] { "You dont have the required permission to run " + GetUsage() };
 		}
 	}
 }
+
