@@ -13,9 +13,9 @@ namespace SCP008PLUGIN
 
 		internal static void SCP008Cure(this Player player) => Utility.CureInfection(player);
 
-		internal static bool IsInfected(this Player player) => SCP008.infected.Contains(player.UserId);
+		internal static bool IsInfected(this Player player) => SCP008.infected.Contains(player.UserID);
 
-		internal static bool IsPatientZero(this Player player) => player.IsInfected() && SCP008.patientZero == player.UserId;
+		internal static bool IsPatientZero(this Player player) => player.IsInfected() && SCP008.patientZero == player.UserID;
 
 	}
 }

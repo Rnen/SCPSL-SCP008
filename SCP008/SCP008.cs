@@ -15,17 +15,17 @@ namespace SCP008PLUGIN
 		name = "SCP008",
 		description = "Plugin that replicates SCP008 behaviour",
 		id = "rnen.scp.008",
-		version = assemblyVersion + "-1",
+		version = assemblyVersion + "-0",
 		SmodMajor = 3,
-		SmodMinor = 9,
-		SmodRevision = 9
+		SmodMinor = 10,
+		SmodRevision = 0
 		)]
 	public partial class SCP008 : Plugin
 	{
 		/// <summary>
 		/// The current <see cref="SCP008"/> plugin version
 		/// </summary>
-		public const string assemblyVersion = "1.7";
+		public const string assemblyVersion = "1.9";
 
 		public string TranslationFileName => this.Details.name + "-Translations";
 
@@ -37,14 +37,14 @@ namespace SCP008PLUGIN
 		{
 			get
 			{
-				return plugin.Server.GetPlayers(p=> infected.Contains(p.UserId)).ToArray();
+				return plugin.Server.GetPlayers(p=> infected.Contains(p.UserID)).ToArray();
 			}
 		}
 		internal static Player[] InfectedZombies
 		{
 			get
 			{
-				return plugin.Server.GetPlayers(Smod2.API.RoleType.SCP_049_2).Where(s => infected.Contains(s.UserId)).ToArray();
+				return plugin.Server.GetPlayers(Smod2.API.RoleType.SCP_049_2).Where(s => infected.Contains(s.UserID)).ToArray();
 			}
 		}
 
@@ -91,7 +91,7 @@ namespace SCP008PLUGIN
 		public override void Register()
 		{
 			#region EventRegister
-			this.AddEventHandlers(new EventHandlers(this), Smod2.Events.Priority.Low);
+			this.AddEventHandlers(new EventHandlers(this), Smod2.Events.Priority.LATER);
 			#endregion
 
 			#region CommandRegister

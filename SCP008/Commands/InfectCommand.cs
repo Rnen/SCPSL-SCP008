@@ -57,7 +57,7 @@ namespace SCP008PLUGIN.Command
 				if (args.Length == 0 && sender is Player p && p != null)
 					try
 					{
-						if (SCP008.infected.Contains(p.UserId))
+						if (SCP008.infected.Contains(p.UserID))
 						{
 							Utility.CureInfection(p, true);
 							return new string[] { "Cured infected " + p.Name };
@@ -80,7 +80,7 @@ namespace SCP008PLUGIN.Command
 					{
 						case "all":
 						case "*":
-							players = Server.GetPlayers(i => i.TeamRole.Team != TeamType.SPECTATOR || i.TeamRole.Team != TeamType.NONE);
+							players = Server.GetPlayers(i => i.PlayerRole.Team != TeamType.SPECTATOR || i.PlayerRole.Team != TeamType.NONE);
 							break;
 						case "list":
 						case "infected":
@@ -123,7 +123,7 @@ namespace SCP008PLUGIN.Command
 								break;
 							case "":
 							default:
-								if (SCP008.infected.Contains(player.UserId))
+								if (SCP008.infected.Contains(player.UserID))
 									Utility.CureInfection(player);
 								else
 									Utility.Infect(player);

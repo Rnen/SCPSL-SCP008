@@ -9,7 +9,7 @@ namespace SCP008PLUGIN
 {
 	internal struct WaitForTeleport
 	{
-		internal string userID;
+		internal string UserID;
 		internal Vector location;
 		internal DateTime triggerTime;
 	}
@@ -18,12 +18,12 @@ namespace SCP008PLUGIN
 		internal static void Infect(Player player, bool isPatientZero = false)
 		{
 			if (isPatientZero)
-				SCP008.patientZero = player.UserId;
-			if (player == null || player.IsInfected() || player.TeamRole.Team == TeamType.NONE)
+				SCP008.patientZero = player.UserID;
+			if (player == null || player.IsInfected() || player.PlayerRole.Team == TeamType.NONE)
 				return;
-			SCP008.infected.Add(player.UserId);
+			SCP008.infected.Add(player.UserID);
 			if (SCP008.PersonalBroadcastConfig)
-				if (player.TeamRole.Team == TeamType.SCP)
+				if (player.PlayerRole.Team == TeamType.SCP)
 					player.ShowHint(SCP008.plugin.GetTranslation("youAreInfectedSCP"), (float)SCP008.plugin.GetConfigFloat(SCP008.personalHintDuration));
 				else
 				{
@@ -36,7 +36,7 @@ namespace SCP008PLUGIN
 
 		internal static void CureInfection(Player player, bool forceCure = false)
 		{
-			if (player == null || !SCP008.infected.Contains(player.UserId))
+			if (player == null || !SCP008.infected.Contains(player.UserID))
 				return;
 			if (SCP008.plugin.GetConfigBool(SCP008.usePatientZero) && player.IsPatientZero() && !forceCure)
 			{
@@ -44,7 +44,7 @@ namespace SCP008PLUGIN
 					player.ShowHint(SCP008.plugin.GetTranslation("youAreInfectedZero"), SCP008.plugin.GetConfigFloat(SCP008.personalHintDuration));
 				return;
 			}
-			SCP008.infected.Remove(player.UserId);
+			SCP008.infected.Remove(player.UserID);
 			SCP008.patientZero = "";
 			if (SCP008.PersonalBroadcastConfig)
 				player.ShowHint(SCP008.plugin.GetTranslation("youAreNotInfected"), SCP008.plugin.GetConfigFloat(SCP008.personalHintDuration));
@@ -54,9 +54,9 @@ namespace SCP008PLUGIN
 		{
 			foreach (var scp in Scp079PlayerScript.instances)
 				scp.AddExperience(SCP008.plugin.GetConfigFloat(SCP008.assist079EXP));
-			if (!isDead && player.TeamRole.Team != TeamType.SPECTATOR)
+			if (!isDead && player.PlayerRole.Team != TeamType.SPECTATOR)
 			{
-				SCP008.waitForTeleport.Enqueue(new WaitForTeleport { userID = player.UserId, location = player.GetPosition(), triggerTime = DateTime.UtcNow.AddSeconds(1) });
+				SCP008.waitForTeleport.Enqueue(new WaitForTeleport { UserID = player.UserID, location = player.GetPosition(), triggerTime = DateTime.UtcNow.AddSeconds(1) });
 				SCP008.plugin.Debug("Enqueued player " + player.Name + " for teleport");
 				player.ChangeRole(Smod2.API.RoleType.SCP_049_2, spawnTeleport: false, spawnProtect: false, removeHandcuffs: true);
 			}
@@ -66,7 +66,7 @@ namespace SCP008PLUGIN
 			SCP008.plugin.Debug("Changed " + player.Name + " to SCP-008");
 			if (SCP008.plugin.GetConfigBool(SCP008.personalHint))
 				player.ShowHint(SCP008.plugin.GetTranslation("youAre008"), SCP008.plugin.GetConfigFloat(SCP008.personalHintDuration));
-			RoundSummary.changed_into_zombies++;
+			RoundSummary.ChangedIntoZombies++;
 		}
 
 		internal static bool TryParseCommandBool(string input, out bool output)
