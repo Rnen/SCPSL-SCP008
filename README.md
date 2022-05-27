@@ -1,4 +1,4 @@
-# SCP008 [![GitHub release](https://img.shields.io/github/release/Rnen/SCP008.svg)](https://GitHub.com/Rnen/SCP008/releases/) [![Github all releases](https://img.shields.io/github/downloads/Rnen/SCP008/total.svg)](https://GitHub.com/Rnen/SCP008/releases/) [![GitHub latest commit](https://badgen.net/github/last-commit/Rnen/SCP008)](https://GitHub.com/Rnen/SCP008/commit/) [![GitHub watchers](https://img.shields.io/github/watchers/Rnen/SCP008.svg?style=social&label=Watch&maxAge=2592000)](https://GitHub.com/Rnen/SCP008/watchers/)
+# SCP008 [![GitHub release](https://badgen.net/github/release/Rnen/SCP008)](https://GitHub.com/Rnen/SCP008/releases/) [![Github all releases](https://img.shields.io/github/downloads/Rnen/SCP008/total.svg)](https://GitHub.com/Rnen/SCP008/releases/) [![GitHub latest commit](https://badgen.net/github/last-commit/Rnen/SCP008)](https://GitHub.com/Rnen/SCP008/commit/) [![GitHub watchers](https://img.shields.io/github/watchers/Rnen/SCP008.svg?style=social&label=Watch&maxAge=2592000)](https://GitHub.com/Rnen/SCP008/watchers/)
 
 
 
