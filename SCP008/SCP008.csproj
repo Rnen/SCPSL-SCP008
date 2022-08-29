@@ -65,8 +65,10 @@
     <Compile Include="Commands\EnableDisableCommand.cs" />
     <Compile Include="ConfigHandler.cs" />
     <Compile Include="EventHandlers.cs" />
+    <Compile Include="ExtentionMethods.cs" />
     <Compile Include="SCP008.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

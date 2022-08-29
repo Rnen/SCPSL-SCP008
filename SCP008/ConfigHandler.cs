@@ -9,72 +9,104 @@ namespace SCP008PLUGIN
 {
 	public partial class SCP008
 	{
-		DateTime _next049Check = new DateTime();
-		bool _is049required;
-		bool Get049Required()
+		private DateTime _next049Check = new DateTime();
+		private bool _is049required;
+		bool Is049Required
 		{
-			if (_next049Check < DateTime.Now)
+			get
 			{
-				_is049required = this.GetConfigBool(SCP008.announceRequire049ConfigKey);
-				_next049Check = DateTime.Now.AddSeconds(15);
+				if (_next049Check < DateTime.Now)
+				{
+					_is049required = this.GetConfigBool(SCP008.announceRequire049ConfigKey);
+					_next049Check = DateTime.Now.AddSeconds(15);
+				}
+				return _is049required;
 			}
-			return _is049required;
 		}
+
 		/// <summary>
 		/// Checks if all sources of SCP-008 has beeen exterminated
 		/// </summary>
-		internal bool SCP008Dead()
+		internal bool SCP008Dead
 		{
-			bool scp049alive = Get049Required() && plugin.Server.GetPlayers(Smod2.API.RoleType.SCP_049).Count > 0;
-			bool scp008alive = SCP008.playersToDamage.Count < 1 &&
-				scp049alive || this.Server.GetPlayers(Smod2.API.RoleType.SCP_049_2).Count > 0;
-			return !scp008alive;
+			get
+			{
+				return (infected.Count < 2 &&  Is049Required) || infected.Count < 1;
+			}
 		}
 
-		private bool CanAnnounce = false;
+		private bool _canAnnounce = false;
 		private DateTime _lastCanAnnounceConfigCheck = new DateTime();
 		private bool _lastConfigCanAnnounce;
-		internal bool GetCanAnnounce()
+		internal bool CanAnnounceDead
 		{
-			if (_lastCanAnnounceConfigCheck == null || _lastCanAnnounceConfigCheck < DateTime.Now)
+			get
 			{
-				_lastConfigCanAnnounce = this.GetConfigBool(announementsenabled);
-				_lastCanAnnounceConfigCheck = DateTime.Now.AddSeconds(15);
+				if (_lastCanAnnounceConfigCheck == null || _lastCanAnnounceConfigCheck < DateTime.Now)
+				{
+					_lastConfigCanAnnounce = this.GetConfigBool(cassieAnnouncements);
+					_lastCanAnnounceConfigCheck = DateTime.Now.AddSeconds(15);
+				}
+				return _lastConfigCanAnnounce && _canAnnounce;
 			}
-			return _lastConfigCanAnnounce && CanAnnounce;
-		}
-		internal void SetCanAnnounce(bool can_announce)
-		{
-			plugin.Debug("CanAnnounce set to: " + can_announce);
-			if (!this.GetConfigBool(announementsenabled))
-				plugin.Debug("Announcement(s) disabled in config!");
-			CanAnnounce = can_announce;
+			set
+			{
+				plugin.Debug("CanAnnounce set to: " + value);
+				if (!this.GetConfigBool(cassieAnnouncements))
+					plugin.Debug("Announcement(s) disabled in config!");
+				_canAnnounce = value;
+			}
 		}
 
 		#region General_Plugin_Configs
-		private static bool _changedEnabledState = false;
+		private bool _changedEnabledState = false;
 
-		private static DateTime nextCheck = new DateTime();
-		private static bool IsEnabled = true;
+		private DateTime _nextCheck = new DateTime();
+		private bool _isEnabled = true;
 
-		public bool GetIsEnabled()
+		public bool IsEnabled
 		{
-			if (nextCheck < DateTime.Now && !_changedEnabledState)
+			get
 			{
-				nextCheck = DateTime.Now.AddSeconds(30);
-				IsEnabled = this.GetConfigBool(enableConfigKey);
+				if (_nextCheck < DateTime.Now && !_changedEnabledState)
+				{
+					_nextCheck = DateTime.Now.AddSeconds(30);
+					_isEnabled = this.GetConfigBool(enableConfigKey);
+				}
+				return _isEnabled;
 			}
-			return IsEnabled;
+			set
+			{
+				_isEnabled = value;
+				_changedEnabledState = true;
+			}
 		}
-		/// <summary>
-		/// Sets the current state of <see cref="SCP008"/>
-		/// <para>Also disables further config checks for this</para>
-		/// </summary>
-		public void SetIsEnabled(bool value)
+
+		internal static bool PersonalBroadcastConfig => plugin.GetConfigBool(SCP008.personalHint);
+
+		private bool _changedEnabledStateZero = false;
+
+		private DateTime _nextCheckZero = new DateTime();
+		private bool _isEnabledZeroOnStart = true;
+
+		public bool IsEnabledZeroOnStart
 		{
-			IsEnabled = value;
-			_changedEnabledState = true;
+			get
+			{
+				if (_nextCheckZero < DateTime.Now && !_changedEnabledStateZero)
+				{
+					_nextCheckZero = DateTime.Now.AddSeconds(30);
+					_isEnabledZeroOnStart = this.GetConfigBool(startwithPatientZero);
+				}
+				return _isEnabledZeroOnStart;
+			}
+			set
+			{
+				_isEnabledZeroOnStart = value;
+				_changedEnabledStateZero = true;
+			}
 		}
+
 		#endregion
 	}
 }

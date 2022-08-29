@@ -14,10 +14,10 @@ namespace SCP008PLUGIN
 		private readonly SCP008 plugin;
 		private Server Server => PluginManager.Manager.Server;
 
-		bool IsEnabled => plugin.GetIsEnabled();
+		bool IsEnabled => plugin.IsEnabled;
 
-		int damageAmount = 2, 
-			damageInterval = 1;
+		float damageAmount = 2;
+		int damageInterval = 1;
 		List<int> rolesCanBecomeInfected = new List<int>();
 
 		public EventHandlers(SCP008 plugin)
@@ -29,63 +29,79 @@ namespace SCP008PLUGIN
 
 		public void OnPlayerHurt(PlayerHurtEvent ev)
 		{
-			if (ev.Attacker.PlayerId == ev.Player.PlayerId || !IsEnabled) return;
+			if (ev.Attacker.PlayerID == ev.Player.PlayerID || !IsEnabled || (plugin.GetConfigBool(SCP008.separateVanillaZombies) && !ev.Attacker.IsInfected()))
+				return;
 
-			int damageAmount = (ev.Attacker.TeamRole.Role == Smod2.API.RoleType.SCP_049_2) ? plugin.GetConfigInt(SCP008.swingDamageConfigKey) : 0;
-			int infectChance = (ev.Attacker.TeamRole.Role == Smod2.API.RoleType.SCP_049_2) ? plugin.GetConfigInt(SCP008.infectChanceConfigKey) : 0;
-			int infectOnKillChance = (ev.Attacker.TeamRole.Role == Smod2.API.RoleType.SCP_049_2 && ev.Damage >= (ev.Player.HP + ev.Player?.AHP ?? 0)) ? plugin.GetConfigInt(SCP008.infectKillChanceConfigKey) : 0;
+			int damageAmount = (ev.Attacker.PlayerRole.RoleID == Smod2.API.RoleType.SCP_049_2) ? plugin.GetConfigInt(SCP008.swingDamageConfigKey) : 0;
+			int infectChance = (ev.Attacker.PlayerRole.RoleID == Smod2.API.RoleType.SCP_049_2) ? plugin.GetConfigInt(SCP008.infectChanceConfigKey) : 0;
+			int infectOnKillChance = (ev.Attacker.PlayerRole.RoleID == Smod2.API.RoleType.SCP_049_2 && ev.Damage >= (ev.Player.Health + ev.Player?.ArtificialHealth ?? 0)) ? plugin.GetConfigInt(SCP008.infectKillChanceConfigKey) : 0;
 
-			if (ev.Player.TeamRole.Team == Smod2.API.TeamType.TUTORIAL && ev.Attacker.TeamRole.Role == Smod2.API.RoleType.SCP_049_2
+			if (ev.Player.PlayerRole.Team == Smod2.API.TeamType.TUTORIAL && ev.Attacker.PlayerRole.RoleID == Smod2.API.RoleType.SCP_049_2
 				&& !plugin.GetConfigBool(SCP008.canHitTutConfigKey))
-			{ ev.Damage = 0f; return; }
+			{
+				ev.Damage = 0f;
+				return;
+			}
 
 			//Sets damage to config amount if above 0
-			if (ev.Attacker.TeamRole.Role == Smod2.API.RoleType.SCP_049_2 && damageAmount > 0)
+			if (ev.Attacker.PlayerRole.RoleID == Smod2.API.RoleType.SCP_049_2 && damageAmount > 0)
 				ev.Damage = damageAmount;
-			
+
 			//When a zombie damages a player, adds them to list of infected players to damage
-			if (IsEnabled && ev.Attacker.TeamRole.Role == Smod2.API.RoleType.SCP_049_2
-				&& !SCP008.playersToDamage.Contains(ev.Player.UserId)
+			if (IsEnabled && ev.Attacker.PlayerRole.RoleID == Smod2.API.RoleType.SCP_049_2
+				&& !SCP008.infected.Contains(ev.Player.UserID)
 				&& infectChance > 0
 				&& new Random().Next(1, 100) <= infectChance)
 			{
-				if( (rolesCanBecomeInfected == null || rolesCanBecomeInfected.Count == 0 || rolesCanBecomeInfected.FirstOrDefault() == -1) 
-					|| 
-					(rolesCanBecomeInfected.Count > 0 && rolesCanBecomeInfected.Contains((int)ev.Player.TeamRole.Role)))
-					Infect(ev.Player);
+				if ((rolesCanBecomeInfected == null || rolesCanBecomeInfected.Count == 0 || rolesCanBecomeInfected.FirstOrDefault() == -1)
+					||
+					(rolesCanBecomeInfected.Count > 0 && rolesCanBecomeInfected.Contains((int)ev.Player.PlayerRole.RoleID)))
+					Utility.Infect(ev.Player);
 			}
 
-			if (ev.Attacker.TeamRole.Role == Smod2.API.RoleType.SCP_049_2
-				&& ev.Damage >= (ev.Player.HP + ev.Player?.AHP ?? 0)
+			if (ev.Attacker.PlayerRole.RoleID == Smod2.API.RoleType.SCP_049_2
+				&& ev.Damage >= (ev.Player.Health + ev.Player?.ArtificialHealth ?? 0)
 				&& (infectOnKillChance > 99 || new Random().Next(1, 100) <= infectOnKillChance))
 			{
 				ev.Damage = 0f;
-				ChangeToSCP008(ev.Player);
+				Utility.ChangeToSCP008(ev.Player);
 			}
 		}
 
 		public void OnPlayerDie(PlayerDeathEvent ev)
 		{
 			//If player dies, removes them from infected list
-			if (plugin.GetConfigBool(SCP008.anyDeathCounts))
+			if (SCP008.infected.Contains(ev.Player.UserID))
 			{
-				ev.SpawnRagdoll = false;
-				ChangeToSCP008(ev.Player);
+				if (plugin.GetConfigBool(SCP008.anyDeathCounts))
+				{
+					ev.SpawnRagdoll = false;
+					Utility.ChangeToSCP008(ev.Player, true);
+				}
+				else
+					SCP008.infected.Remove(ev.Player.UserID);
 			}
-			else if (SCP008.playersToDamage.Contains(ev.Player.UserId))
-				SCP008.playersToDamage.Remove(ev.Player.UserId);
 		}
 
 		public void OnMedicalUse(PlayerMedicalUseEvent ev)
 		{
-			if (!IsEnabled || (ev.MedicalItem != Smod2.API.ItemType.MEDKIT && ev.MedicalItem != Smod2.API.ItemType.SCP500)) 
+			if (!IsEnabled || ((int)ev.MedicalItem != (int)Smod2.API.ItemType.MEDKIT && (int)ev.MedicalItem != (int)Smod2.API.ItemType.SCP500))
 				return;
 			int cureChance = plugin.GetConfigInt(SCP008.cureChanceConfigKey);
 			//If its enabled in config and infected list contains player and cure chance is more than, cure.
-			if (SCP008.playersToDamage.Contains(ev.Player.UserId)
-				&& cureChance > 0
+			if (SCP008.infected.Contains(ev.Player.UserID) && cureChance > 0
 				&& cureChance >= new Random().Next(1, 100))
-				SCP008.playersToDamage.Remove(ev.Player.UserId);
+			{
+				if (ev.Player.IsPatientZero())
+				{
+					if (plugin.GetConfigBool(SCP008.personalHint))
+						ev.Player.ShowHint(plugin.GetTranslation("youAreNotInfectedZero"), plugin.GetConfigFloat(SCP008.personalHintDuration));
+					return;
+				}
+				Utility.CureInfection(ev.Player);
+				if (plugin.GetConfigBool(SCP008.personalHint))
+					ev.Player.ShowHint(plugin.GetTranslation("youAreNotInfected"), plugin.GetConfigFloat(SCP008.personalHintDuration));
+			}
 		}
 
 		#endregion
@@ -95,27 +111,39 @@ namespace SCP008PLUGIN
 		public void OnRoundEnd(RoundEndEvent ev)
 		{
 			//Empties infected list
-			SCP008.playersToDamage.Clear();
+			SCP008.infected.Clear();
 			//Duh.
 			SCP008.roundCount++;
 		}
 
 		public void OnRoundStart(RoundStartEvent ev)
 		{
-			if (!IsEnabled) return;
+			if (!IsEnabled) 
+				return;
 			//Empties infected list
-			SCP008.playersToDamage.Clear();
+			SCP008.infected.Clear();
 
-			if (!plugin.SCP008Dead())
-				plugin.SetCanAnnounce(true);
+			if (!plugin.SCP008Dead)
+				plugin.CanAnnounceDead = true;
+
+			if (ev.Server.GetPlayers(Smod2.API.RoleType.SCP_049).Count < 1 && plugin.GetConfigBool(SCP008.usePatientZero) && plugin.IsEnabledZeroOnStart)
+			{
+				var rnd = new System.Random();
+				var players = Server.GetPlayers(p => p.PlayerRole.Team == TeamType.D_CLASS || p.PlayerRole.Team == TeamType.SCIENTIST);
+				if (players.Count < 1)
+					return;
+				var pl = players[rnd.Next(0, players.Count - 1)];
+				Utility.Infect(pl, true);
+			}
 		}
 
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
 			//Reload theese configs on each round restart
-			this.damageAmount = plugin.GetConfigInt(SCP008.damageAmountConfigKey);
+			this.damageAmount = plugin.GetConfigFloat(SCP008.damageAmountConfigKey);
 			this.damageInterval = plugin.GetConfigInt(SCP008.damageIntervalConfigKey);
 			this.rolesCanBecomeInfected = plugin.GetConfigIntList(SCP008.rolesCanBeInfectedConfigKey).ToList();
+			this.announcementEnabled = plugin.GetConfigBool(SCP008.cassieAnnouncements);
 		}
 
 		#endregion
@@ -123,22 +151,26 @@ namespace SCP008PLUGIN
 
 		DateTime updateTimer = DateTime.Now;
 		DateTime announementTimer = DateTime.Now;
+		DateTime teleportTimer = DateTime.Now;
+		bool announcementEnabled = true;
 
 		public void OnUpdate(UpdateEvent ev)
 		{
-			if (!IsEnabled) return;
-			if(announementTimer < DateTime.Now)
+			if (!IsEnabled)
+				return;
+			#region Announcements
+			if (announcementEnabled && announementTimer < DateTime.Now)
 			{
-				announementTimer = plugin.GetCanAnnounce() ? DateTime.Now.AddSeconds(5) : DateTime.Now.AddSeconds(30);
-				if(plugin.GetCanAnnounce() && plugin.SCP008Dead())
+				announementTimer = plugin.CanAnnounceDead ? DateTime.Now.AddSeconds(5) : DateTime.Now.AddSeconds(30);
+				if (plugin.CanAnnounceDead && plugin.SCP008Dead)
 				{
-					plugin.Debug("Before announce: \n" + "  - Can Announce: " + plugin.GetCanAnnounce() + "\n" + "  - 008 Exterminated: " + plugin.SCP008Dead());
-					if(plugin.GetConfigBool(SCP008.announementsenabled))
-						plugin.Server.Map.AnnounceScpKill("008");
-					plugin.SetCanAnnounce(false);
-					plugin.Debug("After announce: \n" + "  - Can Announce: " + plugin.GetCanAnnounce() + "\n" + "  - 008 Exterminated: " + plugin.SCP008Dead());
+					plugin.Debug("Before announce: \n" + "  - Can Announce: " + plugin.CanAnnounceDead + "\n" + "  - 008 Exterminated: " + plugin.SCP008Dead);
+					plugin.Server.Map.AnnounceScpKill(Smod2.API.RoleType.NONE,"008");
+					plugin.CanAnnounceDead = false;
+					plugin.Debug("After announce: \n" + "  - Can Announce: " + plugin.CanAnnounceDead + "\n" + "  - 008 Exterminated: " + plugin.SCP008Dead);
 				}
 			}
+			#endregion
 
 			if (updateTimer < DateTime.Now)
 			{
@@ -146,51 +178,41 @@ namespace SCP008PLUGIN
 				updateTimer = DateTime.Now.AddSeconds(damageInterval);
 
 				//If the server isnt empty, run code on all players
-				if (Server.GetPlayers().Count > 0)
-					foreach(Player p in Server.GetPlayers())
+				if (Server.NumPlayers > 0)
+					foreach (Player player in Server.GetPlayers(p => p.PlayerRole.Team != TeamType.SCP))
 					{
 						//If the victim is human and the player is in the infected list
-						if ((p.TeamRole.Team != Smod2.API.TeamType.SCP && p.TeamRole.Team != Smod2.API.TeamType.SPECTATOR) && SCP008.playersToDamage.Contains(p.UserId))
+						if ((player.PlayerRole.Team != Smod2.API.TeamType.SPECTATOR) && SCP008.infected.Contains(player.UserID))
 						{
 							//If the damage doesnt kill, deal the damage
-							if (damageAmount < (p.HP + p?.AHP ?? 0))
-								p.Damage(damageAmount, DamageType.SCP_049_2);
-							else if (damageAmount >= (p.HP + p?.AHP ?? 0))
+							if (damageAmount < Math.Round((player.Health + player?.ArtificialHealth ?? 0)) && player.Health > 1)
+								player.Damage("Died to an SCP-008 infection.", damageAmount);
+							else 
 							{
 								//If the damage kills the human, transform
-								ChangeToSCP008(p);
+								Utility.ChangeToSCP008(player);
 							}
 						}
 					}
 			}
+
+			if (SCP008.waitForTeleport.Count > 0 && teleportTimer < DateTime.UtcNow)
+			{
+				//Sets when the next time this code will run
+				teleportTimer = DateTime.UtcNow.AddSeconds(2);
+				if(SCP008.waitForTeleport.Peek().triggerTime <= DateTime.UtcNow)
+				{
+					var t = SCP008.waitForTeleport.Dequeue();
+					var p = Server.GetPlayers(t.UserID).FirstOrDefault();
+					if(p != null)
+					{
+						p.Teleport(t.location);
+					}
+				}
+			}
 		}
 
-		public void OnCheckEscape(PlayerCheckEscapeEvent ev)
-		{
-			if (SCP008.playersToDamage.Contains(ev.Player.UserId))
-				SCP008.playersToDamage.Remove(ev.Player.UserId);
-		}
+		public void OnCheckEscape(PlayerCheckEscapeEvent ev) => Utility.CureInfection(ev.Player);
 
-		internal void Infect(Player player)
-		{
-			if (player == null || SCP008.playersToDamage.Contains(player.UserId))
-				return;
-			SCP008.playersToDamage.Add(player.UserId);
-			player.PersonalBroadcast((uint)plugin.GetConfigInt(SCP008.personalBroadcastDuration), plugin.GetTranslation("youAreInfected"), false);
-		}
-
-		internal void ChangeToSCP008(Player player)
-		{
-			foreach (var scp in Scp079PlayerScript.instances)
-				scp.AddExperience(plugin.GetConfigFloat(SCP008.assist079EXP));
-			if (SCP008.playersToDamage.Contains(player.UserId))
-				SCP008.playersToDamage.Remove(player.UserId);
-			Vector pos = player.GetPosition();
-			player.ChangeRole(Smod2.API.RoleType.SCP_049_2, spawnTeleport: false, spawnProtect: false);
-			player.Teleport(pos);
-			plugin.SetCanAnnounce(true);
-			plugin.Debug("Changed " + player.Name + " to SCP-008");
-			player.PersonalBroadcast((uint)plugin.GetConfigInt(SCP008.personalBroadcastDuration), plugin.GetTranslation("youAre008"), false);
-		}
 	}
 }

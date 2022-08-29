@@ -19,16 +19,17 @@ namespace SCP008PLUGIN.Command
 		public string[] OnCall(ICommandSender sender, string[] args)
 		{
 			if (sender is Player p && p != null)
-				return new string[] { "This command is only for use in server window!" };
+				return new string[] { "Visit https://github.com/Rnen/SCP008 for more information" };
 			else
-			{
 				try
 				{
 					System.Diagnostics.Process.Start("https://github.com/Rnen/SCP008");
 					return new string[] { "Opening browser..." };
 				}
-				catch { return new string[] { "Could not open browser!" }; }
-			}
+				catch 
+				{
+					return new string[] { "Could not open browser!" }; 
+				}
 		}
 	}
 }
